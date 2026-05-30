@@ -1,0 +1,192 @@
+/* ===========================================================================
+   Ennea — "Ink & Nine Jewels" design system
+   Deep ink ground · warm bone type · brass sacred geometry · nine jewel hues
+   =========================================================================== */
+
+:root {
+  --ink: #0d0e16;
+  --ink-2: #14151f;
+  --slate: #1b1d2b;
+  --panel: rgba(27, 29, 43, 0.5);
+
+  --bone: #ece6da;
+  --mist: #a7a3b8;
+  --whisper: #6b687f;
+
+  --brass: #c8a86b;
+  --brass-deep: #957a44;
+  --brass-lite: #e7d3a3;
+
+  /* overridden per-type via inline style */
+  --accent: #c8a86b;
+
+  --radius: 18px;
+  --maxw: 1080px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--bone);
+  background-color: var(--ink);
+  background-image:
+    radial-gradient(70% 50% at 50% -10%, rgba(108, 123, 209, 0.16), transparent 60%),
+    radial-gradient(50% 40% at 85% 8%, rgba(155, 126, 222, 0.1), transparent 55%),
+    radial-gradient(60% 50% at 10% 100%, rgba(47, 168, 160, 0.08), transparent 60%),
+    radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* film grain */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 8s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(-3%, 2%); }
+  60% { transform: translate(2%, -2%); }
+  100% { transform: translate(-1%, 1%); }
+}
+
+/* typography */
+h1, h2, h3, h4 {
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 400;
+  line-height: 1.08;
+}
+.serif { font-family: 'Spectral', Georgia, serif; }
+.muted { color: var(--mist); }
+.whisper { color: var(--whisper); }
+
+.small-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--mist);
+}
+
+.brass-text {
+  background: linear-gradient(100deg, var(--brass-deep), var(--brass-lite) 30%, var(--brass) 50%, var(--brass-lite) 70%, var(--brass-deep));
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4));
+  animation: brassshift 11s ease-in-out infinite;
+}
+@keyframes brassshift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.accent-text {
+  background: linear-gradient(100deg, var(--accent), color-mix(in oklab, var(--accent) 55%, white) 50%, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* glass panels */
+.glass {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  backdrop-filter: blur(16px) saturate(115%);
+  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  border: 1px solid rgba(200, 168, 107, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.glass-accent {
+  border-color: color-mix(in oklab, var(--accent) 42%, transparent);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45), 0 0 60px -22px var(--accent), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* buttons */
+.btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--bone);
+  padding: 0.8em 1.5em;
+  border-radius: 999px;
+  border: 1px solid rgba(200, 168, 107, 0.32);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  cursor: pointer;
+  transition: transform 0.25s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.btn:hover { transform: translateY(-2px); border-color: var(--brass); box-shadow: 0 10px 30px -12px var(--brass); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-primary {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--ink-2), var(--ink-2)) padding-box,
+    linear-gradient(120deg, var(--brass-lite), var(--brass), var(--brass-deep)) border-box;
+}
+.btn-primary:hover { box-shadow: 0 0 40px -10px var(--brass); transform: translateY(-2px); }
+
+.btn-ghost { background: transparent; border-color: rgba(167, 163, 184, 0.25); color: var(--mist); }
+.btn-ghost:hover { color: var(--bone); border-color: var(--mist); box-shadow: none; }
+
+/* chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.4em 0.85em;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  color: var(--bone);
+  background: color-mix(in oklab, var(--accent) 13%, rgba(255, 255, 255, 0.03));
+  border: 1px solid color-mix(in oklab, var(--accent) 38%, transparent);
+}
+
+/* layout */
+.container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: clamp(1.1rem, 4vw, 2.4rem); }
+.center-screen { min-height: 100dvh; display: grid; place-items: center; padding-block: clamp(2rem, 6vh, 5rem); }
+.stack { display: flex; flex-direction: column; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: linear-gradient(var(--slate), var(--ink-2)); border-radius: 999px; border: 2px solid var(--ink); }
+::selection { background: color-mix(in oklab, var(--brass) 45%, transparent); color: var(--bone); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  body::after { animation: none; }
+}
