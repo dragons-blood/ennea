@@ -5,7 +5,7 @@ import IntroScreen from './features/intro/IntroScreen'
 import TestScreen from './features/test/TestScreen'
 import ResultScreen from './features/result/ResultScreen'
 import { computeResult } from './lib/scoring'
-import type { Answer, Result } from './data/types'
+import type { Answer, FcPick, Result } from './data/types'
 
 type Screen = 'intro' | 'test' | 'result'
 const KEY = 'ennea.result'
@@ -23,8 +23,8 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('intro')
   const [result, setResult] = useState<Result | null>(() => loadResult())
 
-  function handleComplete(answers: Record<number, Answer>) {
-    const r = computeResult(answers)
+  function handleComplete(answers: Record<number, Answer>, picks: FcPick[]) {
+    const r = computeResult(answers, picks)
     setResult(r)
     try {
       localStorage.setItem(KEY, JSON.stringify(r))

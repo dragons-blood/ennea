@@ -42,19 +42,37 @@ export interface Tritype {
   blurb: string
 }
 
+export type Facet = 'motivation' | 'fear' | 'behavior' | 'relational' | 'stress' | 'image'
+
 export interface Question {
   id: number
   type: TypeNumber
   text: string
+  facet: Facet
+  signature?: boolean // a punchy, discriminating item — used in forced-choice tiebreakers
 }
 
 // 1 (strongly disagree) … 5 (strongly agree)
 export type Answer = 1 | 2 | 3 | 4 | 5
 
+export interface ForcedChoicePair {
+  id: string
+  a: { type: TypeNumber; text: string }
+  b: { type: TypeNumber; text: string }
+}
+
+export interface FcPick {
+  pairId: string
+  chosen: TypeNumber
+}
+
+export type Clarity = 'clear' | 'moderate' | 'close'
+
 export interface TypeScore {
   type: TypeNumber
-  raw: number
-  pct: number // 0–100
+  raw: number // raw agreement sum (reference only)
+  affinity: number // ipsative, within-person-centred score — drives the ranking
+  pct: number // 0–100 display, derived from affinity
 }
 
 export interface TritypeResult {
@@ -65,11 +83,22 @@ export interface TritypeResult {
   archetype: Tritype
 }
 
+export interface CenterScore {
+  center: Center
+  type: TypeNumber
+  pct: number
+  close: boolean // lead and runner-up in this center are near-tied
+}
+
 export interface Result {
-  scores: TypeScore[] // all 9, sorted desc
+  scores: TypeScore[] // all 9, sorted by affinity desc
   core: TypeNumber
   wing: Wing
   wingPct: number
-  centerScores: { center: Center; type: TypeNumber; pct: number }[]
+  wingClarity: Clarity
+  clarity: Clarity // how clearly the core type stands above the rest
+  closeWith: TypeNumber[] // other types near-tied with the core (the "could also be")
+  centerScores: CenterScore[]
   tritype: TritypeResult
+  usedTiebreaker: boolean
 }

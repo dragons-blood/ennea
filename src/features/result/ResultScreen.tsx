@@ -9,6 +9,12 @@ import ExportCard from './ExportCard'
 const GROWTH = '#74cf9e'
 const STRESS = '#e0796f'
 
+const CLARITY: Record<string, { label: string; color: string }> = {
+  clear: { label: 'Clear fit', color: '#74cf9e' },
+  moderate: { label: 'Moderate clarity', color: '#c8a86b' },
+  close: { label: 'Close call', color: '#e0796f' },
+}
+
 function Section({ children, label, title }: { children: ReactNode; label?: string; title?: string }) {
   return (
     <motion.section
@@ -91,6 +97,25 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
               {core.name} <span className="muted">· {result.wing.name}</span>
             </div>
             <p className="muted" style={{ maxWidth: 540, margin: '14px auto 0', fontSize: '1.05rem' }}>{core.hold}</p>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center', marginTop: 18, flexWrap: 'wrap' }}>
+              <span className="chip" style={{ ['--accent' as string]: CLARITY[result.clarity].color, color: CLARITY[result.clarity].color }}>
+                ● {CLARITY[result.clarity].label}
+              </span>
+              {result.usedTiebreaker && <span className="whisper" style={{ fontSize: '0.78rem' }}>refined with forced-choice tiebreakers</span>}
+            </div>
+            {result.closeWith.length > 0 && (
+              <p className="muted" style={{ maxWidth: 560, margin: '14px auto 0', fontSize: '0.92rem' }}>
+                Your top types are close — you may also strongly relate to{' '}
+                {result.closeWith.map((n, i) => (
+                  <span key={n}>
+                    <strong style={{ color: typeByNumber(n).color }}>Type {n} ({typeByNumber(n).name})</strong>
+                    {i < result.closeWith.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+                . Read each and trust the one whose <em>core motivation</em> truly fits.
+              </p>
+            )}
           </motion.div>
 
           {/* core type */}
@@ -190,6 +215,9 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
 
           {/* all nine */}
           <Section label="Your full profile" title="All nine, scored">
+            <p className="muted" style={{ marginTop: -6, marginBottom: 16, fontSize: '0.9rem' }}>
+              Relative affinity after within-person centring — how strongly each type pulls compared with your own baseline.
+            </p>
             <div className="stack" style={{ gap: 11 }}>
               {result.scores.map((s) => {
                 const t = typeByNumber(s.type)
@@ -258,10 +286,13 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
           <Section>
             <div className="glass" style={{ padding: '22px 24px', borderRadius: 16 }}>
               <p className="whisper" style={{ fontSize: '0.78rem', margin: 0 }}>
-                This test scores all nine types from your responses, then reads your core type, wing, the lead type in each
-                center (your tritype), and your growth/stress lines. It's a strong starting point — the Enneagram is
-                ultimately about your core <em>motivations</em>, so read the descriptions and confirm what rings true. For
-                reflection and growth, not a verdict.
+                All nine types are scored with <strong>within-person centring</strong> (ipsative scoring): each answer is
+                measured against your own average, so a habit of generally agreeing or disagreeing cancels out and what
+                remains is the <em>relative</em> dominance of each type. When your top types are close, a short{' '}
+                <strong>forced-choice tiebreaker</strong> separates them. From the scores it reads your core type, wing,
+                the lead type in each center (your tritype), and your growth/stress lines. It's a strong starting point —
+                the Enneagram is ultimately about your core <em>motivations</em>, so read the descriptions and confirm
+                what truly rings true. For reflection and growth, not a verdict.
               </p>
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginTop: 26, flexWrap: 'wrap' }}>

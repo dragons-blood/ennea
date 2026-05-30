@@ -18,10 +18,14 @@ gracefully offline). `npm run build` produces a static bundle; `npm run typechec
 
 ## What it does
 
-1. **The test** — 72 first-person statements (8 per type), each tapping a type's core
-   *motivation*, not just surface behavior. Rated 1–5, one at a time, with a progress bar
-   and keyboard shortcuts (`1`–`5`). ~4 minutes.
-2. **The result** — scores all nine types, then derives:
+1. **The test** — 90 first-person statements (10 per type), balanced across **facets**
+   (motivation · fear · behavior · relational · stress · image) so each type is measured
+   across its whole construct. Rated 1–5, one at a time, with a progress bar and keyboard
+   shortcuts (`1`–`5`). When your top types come out close, a short **forced-choice
+   tiebreaker** ("which is *more* you?") separates them. ~4–5 minutes.
+2. **The result** — scored with **within-person centring (ipsative scoring)**, which removes
+   acquiescence bias (a habit of generally agreeing/disagreeing) and measures the *relative*
+   dominance of each type. It then derives, with a **clarity rating** and close-call flags:
    - your **core type** + **wing** (the higher-scoring adjacent type),
    - your **tritype** — the lead type in each center (Gut / Heart / Head), in dominance
      order, matched to one of the 27 tritype archetypes,
