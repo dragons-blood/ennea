@@ -106,7 +106,7 @@ function assembleResult(
   aff: Aff,
   raw: Aff,
   usedTiebreaker: boolean,
-  coreWingOverride?: Wing,
+  wingOverrides?: Partial<Record<TypeNumber, Wing>>,
   manual = false,
 ): Result {
   const A = (n: TypeNumber) => aff[n]
@@ -124,7 +124,7 @@ function assembleResult(
   const byType = (n: TypeNumber) => scores.find((s) => s.type === n)!
 
   const [wingA, wingB] = coreType.wings
-  const wing = coreWingOverride ?? (A(wingA.neighbor) >= A(wingB.neighbor) ? wingA : wingB)
+  const wing = wingOverrides?.[core] ?? (A(wingA.neighbor) >= A(wingB.neighbor) ? wingA : wingB)
   const wingPct = byType(wing.neighbor).pct
   const wingClarity = manual ? 'clear' : wingClarityFromGap(Math.abs(A(wingA.neighbor) - A(wingB.neighbor)))
 
@@ -137,7 +137,7 @@ function assembleResult(
   )
 
   const triLeads = [centerScores[0].type, centerScores[1].type, centerScores[2].type].sort((a, b) => A(b) - A(a) || a - b)
-  const triWings = triLeads.map((n) => (manual && n === core && coreWingOverride ? coreWingOverride : wingOf(n, A)))
+  const triWings = triLeads.map((n) => wingOverrides?.[n] ?? wingOf(n, A))
 
   const clarity = manual ? 'clear' : clarityFromGap(sorted[0].affinity - sorted[1].affinity)
   const closeWith = manual ? [] : sorted.slice(1).filter((s) => sorted[0].affinity - s.affinity <= CLOSE_GAP).map((s) => s.type)
@@ -171,24 +171,38 @@ export function computeResult(answers: Record<number, Answer>, picks: FcPick[] =
 
 const CENTER_ORDER: Center[] = ['Gut', 'Heart', 'Head']
 
+export interface ManualMember {
+  type: TypeNumber
+  wing: Wing
+}
+
 /**
  * Build a full Result from a hand-picked tritype, for people who already know their type or
- * want to explore other combinations. `core` leads; `coreWing` is the chosen wing; `otherTwo`
- * are the picked types in the other two centres. We synthesise affinities so the chosen types
- * are each their centre's lead (and rank core ▸ second ▸ third), then run the exact same
- * assembly the test uses — so a manual reading is structurally identical to a scored one.
+ * want to explore other combinations. `core` leads (with `coreWing`); `others` are the picked
+ * type + wing in the other two centres. We synthesise affinities so the chosen types are each
+ * their centre's lead (ranked core ▸ second ▸ third) and feed every chosen wing through as an
+ * override, then run the exact same assembly the test uses — so a manual reading is
+ * structurally identical to a scored one.
  */
-export function buildManualResult(core: TypeNumber, coreWing: Wing, otherTwo: TypeNumber[]): Result {
-  const ordered = [...otherTwo].sort(
-    (a, b) => CENTER_ORDER.indexOf(typeByNumber(a).center) - CENTER_ORDER.indexOf(typeByNumber(b).center),
+export function buildManualResult(core: TypeNumber, coreWing: Wing, others: ManualMember[]): Result {
+  const ordered = [...others].sort(
+    (a, b) => CENTER_ORDER.indexOf(typeByNumber(a.type).center) - CENTER_ORDER.indexOf(typeByNumber(b.type).center),
   )
   const aff = emptyAff()
   for (const t of ALL) aff[t] = -0.5
   aff[core] = 2.4 // clear overall lead
-  if (ordered[0] !== undefined) aff[ordered[0]] = 1.5 // second centre lead
-  if (ordered[1] !== undefined) aff[ordered[1]] = 1.0 // third centre lead
-  aff[coreWing.neighbor] = Math.max(aff[coreWing.neighbor], 0.85) // elevate the chosen wing, but below any tritype lead
-  return assembleResult(aff, emptyAff(), false, coreWing, true)
+  if (ordered[0]) aff[ordered[0].type] = 1.5 // second centre lead
+  if (ordered[1]) aff[ordered[1].type] = 1.0 // third centre lead
+
+  // Each chosen wing: record the override and gently elevate the wing neighbour for the bars,
+  // always kept below the lowest tritype lead (1.0) so it never displaces a centre lead.
+  const wingOverrides: Partial<Record<TypeNumber, Wing>> = { [core]: coreWing }
+  aff[coreWing.neighbor] = Math.max(aff[coreWing.neighbor], 0.85)
+  for (const o of ordered) {
+    wingOverrides[o.type] = o.wing
+    aff[o.wing.neighbor] = Math.max(aff[o.wing.neighbor], 0.7)
+  }
+  return assembleResult(aff, emptyAff(), false, wingOverrides, true)
 }
 
 /** Fisher–Yates shuffle (used to interleave items and tiebreakers). */

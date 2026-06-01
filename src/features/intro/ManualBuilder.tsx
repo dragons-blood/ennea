@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import { CENTERS, typeByNumber } from '../../data/enneatypes'
-import { buildManualResult } from '../../lib/scoring'
+import { buildManualResult, type ManualMember } from '../../lib/scoring'
 import type { Result, TypeNumber, Wing } from '../../data/types'
 
 const shortName = (n: TypeNumber) => typeByNumber(n).name.replace(/^The\s+/, '')
@@ -53,15 +53,48 @@ function TypePill({ n, selected, onClick }: { n: TypeNumber; selected: boolean; 
   )
 }
 
+/** The two wing options for a given type, e.g. 4w3 / 4w5 — tinted with that type's hue. */
+function WingPills({ type, value, onPick }: { type: TypeNumber; value: string | null; onPick: (id: string) => void }) {
+  const t = typeByNumber(type)
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      {t.wings.map((w) => {
+        const sel = value === w.id
+        return (
+          <button
+            key={w.id}
+            type="button"
+            onClick={() => onPick(w.id)}
+            aria-pressed={sel}
+            style={{
+              padding: '0.44em 0.95em',
+              borderRadius: 999,
+              cursor: 'pointer',
+              font: 'inherit',
+              fontSize: '0.82rem',
+              color: sel ? '#0d0e16' : 'var(--bone)',
+              background: sel ? t.color : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${sel ? t.color : 'rgba(255,255,255,0.1)'}`,
+              boxShadow: sel ? `0 0 18px -4px ${t.color}` : 'none',
+              transition: 'background .2s ease, color .2s ease, border-color .2s ease',
+            }}
+          >
+            <b>{w.id}</b>
+            <span style={{ opacity: 0.78, marginLeft: 6 }}>· {w.name}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function CenterPicks({
   centerName,
-  step,
   types,
   value,
   onPick,
 }: {
   centerName: string
-  step?: string
   types: TypeNumber[]
   value: TypeNumber | null
   onPick: (n: TypeNumber) => void
@@ -69,7 +102,7 @@ function CenterPicks({
   return (
     <div>
       <div className="whisper" style={{ fontSize: '0.64rem', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 7 }}>
-        {step ? `${step} · ` : ''}{centerName}
+        {centerName}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {types.map((n) => (
@@ -80,36 +113,49 @@ function CenterPicks({
   )
 }
 
+const wingLabel = { fontSize: '0.6rem', textTransform: 'uppercase' as const, letterSpacing: '0.16em', margin: '8px 0 6px' }
+
+interface MemberPick {
+  type: TypeNumber
+  wingId: string | null
+}
+
 export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) => void }) {
   const [open, setOpen] = useState(false)
   const [core, setCore] = useState<TypeNumber | null>(null)
-  const [wingId, setWingId] = useState<string | null>(null)
-  const [others, setOthers] = useState<Record<string, TypeNumber>>({})
+  const [coreWingId, setCoreWingId] = useState<string | null>(null)
+  const [others, setOthers] = useState<Record<string, MemberPick>>({})
 
   const coreType = core ? typeByNumber(core) : null
   const otherCenters = useMemo(
     () => (coreType ? CENTERS.filter((c) => c.name !== coreType.center) : []),
     [coreType],
   )
-  const wing: Wing | null = (coreType && wingId && coreType.wings.find((w) => w.id === wingId)) || null
-  const ready = !!core && !!wing && otherCenters.every((c) => others[c.name] !== undefined)
+  const coreWing: Wing | null = (coreType && coreWingId && coreType.wings.find((w) => w.id === coreWingId)) || null
+  const ready =
+    !!core && !!coreWing && otherCenters.every((c) => others[c.name] && others[c.name].wingId)
 
   function pickCore(n: TypeNumber) {
     if (n === core) return
     setCore(n)
-    setWingId(null)
+    setCoreWingId(null)
     setOthers({})
   }
 
   function reveal() {
-    if (!core || !wing) return
-    const otherTwo = otherCenters.map((c) => others[c.name]).filter((v): v is TypeNumber => v !== undefined)
-    if (otherTwo.length !== 2) return
-    onGenerate(buildManualResult(core, wing, otherTwo))
+    if (!core || !coreWing) return
+    const members: ManualMember[] = []
+    for (const c of otherCenters) {
+      const o = others[c.name]
+      const wing = o && typeByNumber(o.type).wings.find((w) => w.id === o.wingId)
+      if (!wing) return
+      members.push({ type: o.type, wing })
+    }
+    onGenerate(buildManualResult(core, coreWing, members))
   }
 
   return (
-    <div style={{ marginTop: 22, textAlign: 'center' }}>
+    <div style={{ marginTop: 24, textAlign: 'center' }}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -119,16 +165,20 @@ export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) 
           border: 'none',
           cursor: 'pointer',
           font: 'inherit',
-          fontSize: '0.82rem',
-          letterSpacing: '0.03em',
-          color: 'var(--whisper)',
+          fontSize: '0.92rem',
+          fontWeight: 500,
+          letterSpacing: '0.01em',
           display: 'inline-flex',
           alignItems: 'center',
           gap: 8,
+          textDecoration: 'underline',
+          textDecorationColor: 'rgba(200,168,107,0.4)',
+          textUnderlineOffset: 5,
         }}
       >
-        <span aria-hidden style={{ display: 'inline-block', transition: 'transform .25s', transform: open ? 'rotate(90deg)' : 'none' }}>▸</span>
-        Already know your type? Build a tritype by hand
+        <span aria-hidden style={{ display: 'inline-block', color: 'var(--brass)', transition: 'transform .25s', transform: open ? 'rotate(90deg)' : 'none' }}>▸</span>
+        <span style={{ color: 'var(--mist)' }}>Already know your type?</span>
+        <span className="brass-text" style={{ fontWeight: 600 }}>Build a tritype by hand</span>
       </button>
 
       <AnimatePresence initial={false}>
@@ -143,7 +193,7 @@ export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) 
           >
             <div className="glass" style={{ marginTop: 14, padding: 'clamp(16px, 4vw, 22px)', borderRadius: 16, textAlign: 'left' }}>
               <p className="whisper" style={{ fontSize: '0.78rem', margin: '0 0 18px' }}>
-                Skip the test and explore any combination — your full reading is built from the types you choose.
+                Skip the test and explore any combination — your full reading is built from the types and wings you choose.
               </p>
 
               {/* 1 · core type */}
@@ -156,52 +206,39 @@ export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) 
 
               {coreType && (
                 <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                  {/* 2 · wing */}
+                  {/* 2 · core wing */}
                   <div className="small-caps" style={{ color: 'var(--brass)', margin: '22px 0 10px' }}>2 · Your wing</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {coreType.wings.map((w) => {
-                      const sel = wingId === w.id
-                      return (
-                        <button
-                          key={w.id}
-                          type="button"
-                          onClick={() => setWingId(w.id)}
-                          aria-pressed={sel}
-                          style={{
-                            padding: '0.5em 1em',
-                            borderRadius: 999,
-                            cursor: 'pointer',
-                            font: 'inherit',
-                            fontSize: '0.85rem',
-                            color: sel ? '#0d0e16' : 'var(--bone)',
-                            background: sel ? coreType.color : 'rgba(255,255,255,0.03)',
-                            border: `1px solid ${sel ? coreType.color : 'rgba(255,255,255,0.1)'}`,
-                            boxShadow: sel ? `0 0 18px -4px ${coreType.color}` : 'none',
-                            transition: 'background .2s ease, color .2s ease, border-color .2s ease',
-                          }}
-                        >
-                          <b>{w.id}</b>
-                          <span style={{ opacity: 0.8, marginLeft: 6 }}>· {w.name}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
+                  <WingPills type={coreType.number} value={coreWingId} onPick={setCoreWingId} />
 
-                  {/* 3 · complete the tritype */}
+                  {/* 3 · the other two centers, each with its own wing */}
                   <div className="small-caps" style={{ color: 'var(--brass)', margin: '22px 0 4px' }}>3 · Complete your tritype</div>
                   <p className="whisper" style={{ fontSize: '0.72rem', margin: '0 0 12px' }}>
-                    The type you lead with in each of the other two centers.
+                    The type you lead with in each of the other two centers — and its wing.
                   </p>
-                  <div className="stack" style={{ gap: 12 }}>
-                    {otherCenters.map((c) => (
-                      <CenterPicks
-                        key={c.name}
-                        centerName={c.name}
-                        types={c.types}
-                        value={others[c.name] ?? null}
-                        onPick={(n) => setOthers((o) => ({ ...o, [c.name]: n }))}
-                      />
-                    ))}
+                  <div className="stack" style={{ gap: 16 }}>
+                    {otherCenters.map((c) => {
+                      const o = others[c.name]
+                      return (
+                        <div key={c.name}>
+                          <CenterPicks
+                            centerName={c.name}
+                            types={c.types}
+                            value={o?.type ?? null}
+                            onPick={(n) => setOthers((prev) => ({ ...prev, [c.name]: { type: n, wingId: null } }))}
+                          />
+                          {o && (
+                            <div style={{ paddingLeft: 2 }}>
+                              <div className="whisper" style={wingLabel}>↳ its wing</div>
+                              <WingPills
+                                type={o.type}
+                                value={o.wingId}
+                                onPick={(id) => setOthers((prev) => ({ ...prev, [c.name]: { ...prev[c.name], wingId: id } }))}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
 
                   <button
