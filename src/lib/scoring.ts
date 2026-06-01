@@ -96,9 +96,19 @@ export function buildTiebreakers(cont: TypeNumber[]): ForcedChoicePair[] {
   return shuffle(pairs).slice(0, 8)
 }
 
-export function computeResult(answers: Record<number, Answer>, picks: FcPick[] = []): Result {
-  const raw = rawSums(answers)
-  const aff = affinities(answers, picks)
+/**
+ * Build a full Result from a set of type affinities. Shared by the test (real, ipsative
+ * affinities) and the manual builder (synthesised affinities). `coreWingOverride` lets the
+ * manual path honour the wing the user explicitly chose; `manual` softens the test-only
+ * framing (clarity, close-calls) that doesn't apply to a hand-built tritype.
+ */
+function assembleResult(
+  aff: Aff,
+  raw: Aff,
+  usedTiebreaker: boolean,
+  coreWingOverride?: Wing,
+  manual = false,
+): Result {
   const A = (n: TypeNumber) => aff[n]
 
   const scores: TypeScore[] = TYPES.map((t) => ({
@@ -114,23 +124,23 @@ export function computeResult(answers: Record<number, Answer>, picks: FcPick[] =
   const byType = (n: TypeNumber) => scores.find((s) => s.type === n)!
 
   const [wingA, wingB] = coreType.wings
-  const wing = A(wingA.neighbor) >= A(wingB.neighbor) ? wingA : wingB
+  const wing = coreWingOverride ?? (A(wingA.neighbor) >= A(wingB.neighbor) ? wingA : wingB)
   const wingPct = byType(wing.neighbor).pct
-  const wingClarity = wingClarityFromGap(Math.abs(A(wingA.neighbor) - A(wingB.neighbor)))
+  const wingClarity = manual ? 'clear' : wingClarityFromGap(Math.abs(A(wingA.neighbor) - A(wingB.neighbor)))
 
   const leadOf = (group: TypeNumber[]) => [...group].sort((a, b) => A(b) - A(a) || a - b)
   const centerScores: CenterScore[] = ([['Gut', GUT], ['Heart', HEART], ['Head', HEAD]] as [Center, TypeNumber[]][]).map(
     ([center, group]) => {
       const ranked = leadOf(group)
-      return { center, type: ranked[0], pct: byType(ranked[0]).pct, close: A(ranked[0]) - A(ranked[1]) < CENTER_CLOSE_GAP }
+      return { center, type: ranked[0], pct: byType(ranked[0]).pct, close: !manual && A(ranked[0]) - A(ranked[1]) < CENTER_CLOSE_GAP }
     },
   )
 
   const triLeads = [centerScores[0].type, centerScores[1].type, centerScores[2].type].sort((a, b) => A(b) - A(a) || a - b)
-  const triWings = triLeads.map((n) => wingOf(n, A))
+  const triWings = triLeads.map((n) => (manual && n === core && coreWingOverride ? coreWingOverride : wingOf(n, A)))
 
-  const clarity = clarityFromGap(sorted[0].affinity - sorted[1].affinity)
-  const closeWith = sorted.slice(1).filter((s) => sorted[0].affinity - s.affinity <= CLOSE_GAP).map((s) => s.type)
+  const clarity = manual ? 'clear' : clarityFromGap(sorted[0].affinity - sorted[1].affinity)
+  const closeWith = manual ? [] : sorted.slice(1).filter((s) => sorted[0].affinity - s.affinity <= CLOSE_GAP).map((s) => s.type)
 
   return {
     scores: sorted,
@@ -150,8 +160,35 @@ export function computeResult(answers: Record<number, Answer>, picks: FcPick[] =
       displayWithWings: triWings.map((w) => w.id).join('–'),
       archetype: tritypeBySet(triLeads),
     },
-    usedTiebreaker: picks.length > 0,
+    usedTiebreaker,
+    manual,
   }
+}
+
+export function computeResult(answers: Record<number, Answer>, picks: FcPick[] = []): Result {
+  return assembleResult(affinities(answers, picks), rawSums(answers), picks.length > 0)
+}
+
+const CENTER_ORDER: Center[] = ['Gut', 'Heart', 'Head']
+
+/**
+ * Build a full Result from a hand-picked tritype, for people who already know their type or
+ * want to explore other combinations. `core` leads; `coreWing` is the chosen wing; `otherTwo`
+ * are the picked types in the other two centres. We synthesise affinities so the chosen types
+ * are each their centre's lead (and rank core ▸ second ▸ third), then run the exact same
+ * assembly the test uses — so a manual reading is structurally identical to a scored one.
+ */
+export function buildManualResult(core: TypeNumber, coreWing: Wing, otherTwo: TypeNumber[]): Result {
+  const ordered = [...otherTwo].sort(
+    (a, b) => CENTER_ORDER.indexOf(typeByNumber(a).center) - CENTER_ORDER.indexOf(typeByNumber(b).center),
+  )
+  const aff = emptyAff()
+  for (const t of ALL) aff[t] = -0.5
+  aff[core] = 2.4 // clear overall lead
+  if (ordered[0] !== undefined) aff[ordered[0]] = 1.5 // second centre lead
+  if (ordered[1] !== undefined) aff[ordered[1]] = 1.0 // third centre lead
+  aff[coreWing.neighbor] = Math.max(aff[coreWing.neighbor], 0.85) // elevate the chosen wing, but below any tritype lead
+  return assembleResult(aff, emptyAff(), false, coreWing, true)
 }
 
 /** Fisher–Yates shuffle (used to interleave items and tiebreakers). */

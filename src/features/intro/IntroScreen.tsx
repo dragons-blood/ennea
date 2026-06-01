@@ -2,13 +2,15 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import EnneagramSymbol from '../../components/EnneagramSymbol'
 import TypeModal from '../../components/TypeModal'
+import ManualBuilder from './ManualBuilder'
 import { CENTERS, typeByNumber } from '../../data/enneatypes'
 import { QUESTIONS } from '../../data/questions'
 import type { HistoryEntry } from '../../lib/history'
-import type { TypeNumber } from '../../data/types'
+import type { Result, TypeNumber } from '../../data/types'
 
 interface Props {
   onBegin: () => void
+  onManual: (result: Result) => void
   history: HistoryEntry[]
   onOpen: (entry: HistoryEntry) => void
   onDelete: (id: string) => void
@@ -22,7 +24,7 @@ const fmtDate = (ms: number) => {
   }
 }
 
-export default function IntroScreen({ onBegin, history, onOpen, onDelete }: Props) {
+export default function IntroScreen({ onBegin, onManual, history, onOpen, onDelete }: Props) {
   const [peek, setPeek] = useState<TypeNumber | null>(null)
 
   return (
@@ -103,6 +105,8 @@ export default function IntroScreen({ onBegin, history, onOpen, onDelete }: Prop
             </div>
           </div>
         )}
+
+        <ManualBuilder onGenerate={onManual} />
 
         <p className="whisper" style={{ fontSize: '0.72rem', marginTop: 24, maxWidth: 460, marginInline: 'auto' }}>
           Tap any point on the symbol to explore that type. The Enneagram is a tool for self-understanding, not a box —

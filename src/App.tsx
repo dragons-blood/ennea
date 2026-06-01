@@ -29,6 +29,13 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  // A hand-built tritype — shown like any result, but not auto-saved (it's for exploring).
+  function openManual(r: Result) {
+    setResult(r)
+    setScreen('result')
+    window.scrollTo({ top: 0 })
+  }
+
   return (
     <>
       <GeometryBackground />
@@ -37,6 +44,7 @@ export default function App() {
           <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, filter: 'blur(6px)' }} transition={{ duration: 0.5 }}>
             <IntroScreen
               onBegin={() => setScreen('test')}
+              onManual={openManual}
               history={history}
               onOpen={openFromHistory}
               onDelete={(id) => setHistory(deleteFromHistory(id))}

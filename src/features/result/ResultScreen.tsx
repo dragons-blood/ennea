@@ -102,9 +102,13 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
             <p className="muted" style={{ maxWidth: 540, margin: '14px auto 0', fontSize: '1.05rem' }}>{core.hold}</p>
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center', marginTop: 18, flexWrap: 'wrap' }}>
-              <span className="chip" style={{ ['--accent' as string]: CLARITY[result.clarity].color, color: CLARITY[result.clarity].color }}>
-                ● {CLARITY[result.clarity].label}
-              </span>
+              {result.manual ? (
+                <span className="chip" style={{ ['--accent' as string]: core.color, color: core.color }}>✎ Built by hand</span>
+              ) : (
+                <span className="chip" style={{ ['--accent' as string]: CLARITY[result.clarity].color, color: CLARITY[result.clarity].color }}>
+                  ● {CLARITY[result.clarity].label}
+                </span>
+              )}
               {result.usedTiebreaker && <span className="whisper" style={{ fontSize: '0.78rem' }}>refined with forced-choice tiebreakers</span>}
             </div>
             {result.closeWith.length > 0 && (
@@ -222,7 +226,9 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
           {/* all nine */}
           <Section label="Your full profile" title="All nine, scored">
             <p className="muted" style={{ marginTop: -6, marginBottom: 16, fontSize: '0.9rem' }}>
-              Relative affinity after within-person centring — how strongly each type pulls compared with your own baseline.
+              {result.manual
+                ? 'A profile shaped from the tritype you chose — illustrative, not scored. The descriptions matter far more than these bars.'
+                : 'Relative affinity after within-person centring — how strongly each type pulls compared with your own baseline.'}
             </p>
             <div className="stack" style={{ gap: 11 }}>
               {result.scores.map((s) => {
@@ -303,18 +309,28 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
           {/* footer */}
           <Section>
             <div className="glass" style={{ padding: '22px 24px', borderRadius: 16 }}>
-              <p className="whisper" style={{ fontSize: '0.78rem', margin: 0 }}>
-                All nine types are scored with <strong>within-person centring</strong> (ipsative scoring): each answer is
-                measured against your own average, so a habit of generally agreeing or disagreeing cancels out and what
-                remains is the <em>relative</em> dominance of each type. When your top types are close, a short{' '}
-                <strong>forced-choice tiebreaker</strong> separates them. From the scores it reads your core type, wing,
-                the lead type in each center (your tritype), and your growth/stress lines. It's a strong starting point —
-                the Enneagram is ultimately about your core <em>motivations</em>, so read the descriptions and confirm
-                what truly rings true. For reflection and growth, not a verdict.
-              </p>
+              {result.manual ? (
+                <p className="whisper" style={{ fontSize: '0.78rem', margin: 0 }}>
+                  You built this reading by hand from a chosen tritype, so the score bars are <em>illustrative</em> rather than
+                  measured. Everything else — your core type's portrait, wing, tritype archetype, centers, and growth / stress
+                  lines — is the full profile for the types you picked. Curious what a real test would say?{' '}
+                  <strong>Take the test</strong> and let your own answers find your type. The Enneagram is ultimately about your
+                  core <em>motivations</em>, so read the descriptions and confirm what truly rings true.
+                </p>
+              ) : (
+                <p className="whisper" style={{ fontSize: '0.78rem', margin: 0 }}>
+                  All nine types are scored with <strong>within-person centring</strong> (ipsative scoring): each answer is
+                  measured against your own average, so a habit of generally agreeing or disagreeing cancels out and what
+                  remains is the <em>relative</em> dominance of each type. When your top types are close, a short{' '}
+                  <strong>forced-choice tiebreaker</strong> separates them. From the scores it reads your core type, wing,
+                  the lead type in each center (your tritype), and your growth/stress lines. It's a strong starting point —
+                  the Enneagram is ultimately about your core <em>motivations</em>, so read the descriptions and confirm
+                  what truly rings true. For reflection and growth, not a verdict.
+                </p>
+              )}
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginTop: 26, flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" onClick={onRetake}><span className="brass-text">✦ Retake the test</span></button>
+              <button className="btn btn-primary" onClick={onRetake}><span className="brass-text">✦ {result.manual ? 'Take the test' : 'Retake the test'}</span></button>
               <button className="btn btn-ghost" onClick={onHome}>home</button>
             </div>
           </Section>

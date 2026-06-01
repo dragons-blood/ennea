@@ -103,4 +103,5 @@ export interface Result {
   centerScores: CenterScore[]
   tritype: TritypeResult
   usedTiebreaker: boolean
+  manual?: boolean // built by hand from a chosen tritype rather than scored from the test
 }
