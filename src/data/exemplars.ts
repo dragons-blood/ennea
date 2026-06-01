@@ -1,0 +1,180 @@
+import type { TypeNumber } from './types'
+
+// "Lineage" — kindred spirits who share each core type's pattern. Typings of real people and
+// characters can never be definitive (type is about inner motivation, not behaviour), so these
+// reflect long-standing Enneagram-community consensus and are meant to illuminate the pattern,
+// not to diagnose anyone. Drawn from the CORE type — the clearest, most reliably-typed signal.
+
+export interface Exemplar {
+  name: string
+  tag: string // who they are / where they're from
+}
+export interface Lineage {
+  real: Exemplar[]
+  fictional: Exemplar[]
+}
+
+export const EXEMPLARS: Record<TypeNumber, Lineage> = {
+  1: {
+    real: [
+      { name: 'Mahatma Gandhi', tag: 'independence leader & ascetic' },
+      { name: 'Confucius', tag: 'moral philosopher' },
+      { name: 'Michelle Obama', tag: 'lawyer & former First Lady' },
+      { name: 'Hillary Clinton', tag: 'stateswoman' },
+      { name: 'Martha Stewart', tag: 'doyenne of doing it right' },
+      { name: 'Jerry Seinfeld', tag: 'the comedian of petty exactness' },
+    ],
+    fictional: [
+      { name: 'Hermione Granger', tag: 'Harry Potter' },
+      { name: 'Captain America', tag: 'Steve Rogers, Marvel' },
+      { name: 'Atticus Finch', tag: 'To Kill a Mockingbird' },
+      { name: 'Ned Stark', tag: 'Game of Thrones' },
+      { name: 'Lisa Simpson', tag: 'The Simpsons' },
+      { name: 'Mary Poppins', tag: 'practically perfect' },
+    ],
+  },
+  2: {
+    real: [
+      { name: 'Mother Teresa', tag: 'missionary of charity' },
+      { name: 'Princess Diana', tag: 'the People’s Princess' },
+      { name: 'Desmond Tutu', tag: 'archbishop & reconciler' },
+      { name: 'Fred Rogers', tag: '“Mister Rogers”' },
+      { name: 'Dolly Parton', tag: 'beloved giver & icon' },
+      { name: 'Barbara Bush', tag: 'matriarch & First Lady' },
+    ],
+    fictional: [
+      { name: 'Molly Weasley', tag: 'Harry Potter' },
+      { name: 'Samwise Gamgee', tag: 'The Lord of the Rings' },
+      { name: 'Peeta Mellark', tag: 'The Hunger Games' },
+      { name: 'Leslie Knope', tag: 'Parks and Recreation' },
+      { name: 'Olaf', tag: 'Frozen — “warm hugs”' },
+      { name: 'Snow White', tag: 'the nurturing innocent' },
+    ],
+  },
+  3: {
+    real: [
+      { name: 'Oprah Winfrey', tag: 'media titan' },
+      { name: 'Muhammad Ali', tag: '“The Greatest”' },
+      { name: 'Tom Cruise', tag: 'relentless leading man' },
+      { name: 'Taylor Swift', tag: 'pop’s consummate achiever' },
+      { name: 'Will Smith', tag: 'star who willed it' },
+      { name: 'Beyoncé', tag: 'the polished performer' },
+    ],
+    fictional: [
+      { name: 'Jay Gatsby', tag: 'The Great Gatsby' },
+      { name: 'Don Draper', tag: 'Mad Men' },
+      { name: 'Gaston', tag: 'Beauty and the Beast' },
+      { name: 'Rachel Berry', tag: 'Glee' },
+      { name: 'Lightning McQueen', tag: 'Cars' },
+      { name: 'Patrick Bateman', tag: 'American Psycho — the hollow extreme' },
+    ],
+  },
+  4: {
+    real: [
+      { name: 'Frida Kahlo', tag: 'painter of the inner wound' },
+      { name: 'Vincent van Gogh', tag: 'tormented visionary' },
+      { name: 'Edgar Allan Poe', tag: 'poet of melancholy' },
+      { name: 'Bob Dylan', tag: 'enigmatic songwriter' },
+      { name: 'Prince', tag: 'singular artist' },
+      { name: 'Virginia Woolf', tag: 'interior novelist' },
+    ],
+    fictional: [
+      { name: 'Edward Scissorhands', tag: 'the beautiful outsider' },
+      { name: 'Jack Skellington', tag: 'The Nightmare Before Christmas' },
+      { name: 'BoJack Horseman', tag: 'the self-loathing artist' },
+      { name: 'Loki', tag: 'Marvel — the misunderstood' },
+      { name: 'Lydia Deetz', tag: 'Beetlejuice' },
+      { name: 'Anakin Skywalker', tag: 'Star Wars — longing & shadow' },
+    ],
+  },
+  5: {
+    real: [
+      { name: 'Albert Einstein', tag: 'theoretical physicist' },
+      { name: 'Stephen Hawking', tag: 'cosmologist' },
+      { name: 'Charles Darwin', tag: 'patient naturalist' },
+      { name: 'Emily Dickinson', tag: 'reclusive poet' },
+      { name: 'Bill Gates', tag: 'systems-mind builder' },
+      { name: 'Jane Goodall', tag: 'devoted observer' },
+    ],
+    fictional: [
+      { name: 'Sherlock Holmes', tag: 'the detached genius' },
+      { name: 'Yoda', tag: 'Star Wars' },
+      { name: 'Dr. Gregory House', tag: 'House M.D.' },
+      { name: 'Lisbeth Salander', tag: 'The Girl with the Dragon Tattoo' },
+      { name: 'L', tag: 'Death Note' },
+      { name: 'Egon Spengler', tag: 'Ghostbusters' },
+    ],
+  },
+  6: {
+    real: [
+      { name: 'Sigmund Freud', tag: 'analyst of hidden danger' },
+      { name: 'Mark Twain', tag: 'skeptical wit' },
+      { name: 'George H. W. Bush', tag: 'dutiful statesman' },
+      { name: 'Ellen DeGeneres', tag: 'anxious-funny everyperson' },
+      { name: 'Tom Hanks', tag: 'America’s trustworthy friend' },
+      { name: 'Bruce Springsteen', tag: 'working-class loyalist' },
+    ],
+    fictional: [
+      { name: 'Ron Weasley', tag: 'Harry Potter' },
+      { name: 'Frodo Baggins', tag: 'The Lord of the Rings' },
+      { name: 'Chidi Anagonye', tag: 'The Good Place' },
+      { name: 'Hamlet', tag: 'the doubting prince' },
+      { name: 'Jon Snow', tag: 'Game of Thrones' },
+      { name: 'Chihiro', tag: 'Spirited Away' },
+    ],
+  },
+  7: {
+    real: [
+      { name: 'Robin Williams', tag: 'manic, joyful improviser' },
+      { name: 'Jim Carrey', tag: 'unbounded entertainer' },
+      { name: 'Robert Downey Jr.', tag: 'quicksilver charm' },
+      { name: 'Benjamin Franklin', tag: 'polymath dabbler' },
+      { name: 'John F. Kennedy', tag: 'charismatic optimist' },
+      { name: 'Elton John', tag: 'exuberant showman' },
+    ],
+    fictional: [
+      { name: 'Peter Pan', tag: 'the boy who won’t grow up' },
+      { name: 'Tigger', tag: 'Winnie the Pooh' },
+      { name: 'Han Solo', tag: 'Star Wars' },
+      { name: 'Genie', tag: 'Aladdin' },
+      { name: 'Jack Sparrow', tag: 'Pirates of the Caribbean' },
+      { name: 'Donkey', tag: 'Shrek' },
+    ],
+  },
+  8: {
+    real: [
+      { name: 'Martin Luther King Jr.', tag: 'fearless movement leader' },
+      { name: 'Winston Churchill', tag: 'wartime force of will' },
+      { name: 'Serena Williams', tag: 'dominant champion' },
+      { name: 'Pablo Picasso', tag: 'larger-than-life maker' },
+      { name: 'Ernest Hemingway', tag: 'pugnacious writer' },
+      { name: 'Frank Sinatra', tag: 'did it his way' },
+    ],
+    fictional: [
+      { name: 'Tony Soprano', tag: 'The Sopranos' },
+      { name: 'Walter White', tag: 'Breaking Bad' },
+      { name: 'Khal Drogo', tag: 'Game of Thrones' },
+      { name: 'Captain Ahab', tag: 'Moby-Dick' },
+      { name: 'Miranda Priestly', tag: 'The Devil Wears Prada' },
+      { name: 'The Bride', tag: 'Kill Bill' },
+    ],
+  },
+  9: {
+    real: [
+      { name: 'Abraham Lincoln', tag: 'steady, conciliatory president' },
+      { name: 'Queen Elizabeth II', tag: 'unflappable constant' },
+      { name: 'Audrey Hepburn', tag: 'serene grace' },
+      { name: 'Morgan Freeman', tag: 'calm, grounding presence' },
+      { name: 'Keanu Reeves', tag: 'gentle equanimity' },
+      { name: 'Ringo Starr', tag: 'the easygoing Beatle' },
+    ],
+    fictional: [
+      { name: 'Winnie the Pooh', tag: 'the contented bear' },
+      { name: 'Forrest Gump', tag: 'going with the current' },
+      { name: 'Bilbo Baggins', tag: 'The Hobbit' },
+      { name: 'The Dude', tag: 'The Big Lebowski' },
+      { name: 'Luke Skywalker', tag: 'Star Wars' },
+      { name: 'Marge Gunderson', tag: 'Fargo' },
+    ],
+  },
+}

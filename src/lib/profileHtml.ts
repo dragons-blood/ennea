@@ -1,6 +1,9 @@
 import type { Result } from '../data/types'
 import { typeByNumber, CENTERS } from '../data/enneatypes'
 import { DEPTH } from '../data/depth'
+import { LEVELS } from '../data/levels'
+import { CAREERS } from '../data/careers'
+import { EXEMPLARS, type Exemplar } from '../data/exemplars'
 
 // Self-contained, offline HTML keepsake of an Enneagram result. System fonts only, no
 // external requests, no scripts — safe to save to a phone or computer and open anywhere.
@@ -23,6 +26,9 @@ export function buildProfileHtml(result: Result): string {
   const t = typeByNumber(result.core)
   const c = t.color
   const d = DEPTH[result.core]
+  const lv = LEVELS[result.core]
+  const car = CAREERS[result.core]
+  const lin = EXEMPLARS[result.core]
   const g = typeByNumber(t.growthTo)
   const s = typeByNumber(t.stressTo)
   const wingTag = result.wing.id.slice(1) // 'w2'
@@ -37,6 +43,13 @@ export function buildProfileHtml(result: Result): string {
   const trio = (items: [string, string, string][]) =>
     `<div class="two">${items
       .map(([l, b, col]) => `<div class="card plain"><div class="label" style="color:${col}">${esc(l)}</div><p class="muted">${esc(b)}</p></div>`)
+      .join('')}</div>`
+
+  const bandRow = (label: string, color: string, headline: string, body: string) =>
+    `<div class="card plain" style="border-left:3px solid ${color}"><span class="chip" style="border-color:${color}66;background:${color}1f;color:${color}">${esc(label)}</span><div class="serif" style="font-size:1.1rem;color:#fff;margin:10px 0 0">${esc(headline)}</div><p class="muted" style="margin-top:6px">${esc(body)}</p></div>`
+  const people = (arr: Exemplar[]) =>
+    `<div class="grid">${arr
+      .map((p) => `<div class="tile"><div style="font-family:Georgia,serif;font-size:1rem;color:#fff">${esc(p.name)}</div><div class="muted" style="font-size:.78rem;margin-top:2px">${esc(p.tag)}</div></div>`)
       .join('')}</div>`
 
   return `<!doctype html>
@@ -122,6 +135,12 @@ export function buildProfileHtml(result: Result): string {
   ${section('Your growth path', `Toward Type ${t.growthTo}, ${g.name}`, `<div class="card"><p class="serif" style="font-size:1.1rem">${esc(d.growth)}</p>
     <div class="label" style="margin-top:16px">Practice this</div><ul>${d.practices.map((p) => `<li><span style="color:#74cf9e">→</span> ${esc(p)}</li>`).join('')}</ul>
     <p class="muted" style="margin-top:14px"><b style="color:#e0796f">Under stress</b> you can slip toward Type ${t.stressTo} (${esc(s.name)}) — ${esc(s.atWorst)}</p></div>`)}
+
+  ${section('Levels of development', 'Healthy, average & under strain', `<div style="display:grid;gap:12px">${bandRow('Healthy', '#74cf9e', lv.healthy.headline, lv.healthy.body)}${bandRow('Average', '#c8a86b', lv.average.headline, lv.average.body)}${bandRow('Under strain', '#e0796f', lv.unhealthy.headline, lv.unhealthy.body)}</div>`)}
+
+  ${section('Callings', 'Where your gifts find work', `<div class="card"><p class="serif" style="font-size:1.1rem">${esc(car.note)}</p><div style="margin-top:14px">${chips(car.paths, c)}</div></div>`)}
+
+  ${section('Lineage', 'Kindred spirits', `<div class="label">In the world</div>${people(lin.real)}<div class="label" style="margin-top:18px">On the page &amp; screen</div>${people(lin.fictional)}<p class="muted" style="font-size:.82rem;margin-top:14px">Typings are educated guesses from the Enneagram community, not facts — illustrations of the pattern, not verdicts.</p>`)}
 
   <footer>
     ${result.manual

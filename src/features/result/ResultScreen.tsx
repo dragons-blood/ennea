@@ -7,6 +7,9 @@ import type { Result, TypeNumber } from '../../data/types'
 import Shadow from './Shadow'
 import LoveWork from './LoveWork'
 import GrowthPath from './GrowthPath'
+import Levels from './Levels'
+import Callings from './Callings'
+import Lineage from './Lineage'
 import ExportCard from './ExportCard'
 
 const GROWTH = '#74cf9e'
@@ -287,6 +290,21 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
 
           <Section label="Your growth path" title="The work, and the way up">
             <GrowthPath result={result} />
+          </Section>
+
+          {/* levels of development */}
+          <Section label="Levels of development" title="Healthy, average & under strain">
+            <Levels result={result} />
+          </Section>
+
+          {/* callings / careers */}
+          <Section label="Callings" title="Where your gifts find work">
+            <Callings result={result} />
+          </Section>
+
+          {/* lineage / kindred spirits */}
+          <Section label="Lineage" title="Kindred spirits">
+            <Lineage result={result} />
           </Section>
 
           {/* keep your type */}
