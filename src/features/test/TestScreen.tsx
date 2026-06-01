@@ -24,7 +24,7 @@ export default function TestScreen({ onComplete, onExit }: Props) {
   const [idx, setIdx] = useState(0)
   const [answers, setAnswers] = useState<Record<number, Answer>>({})
 
-  const [phase, setPhase] = useState<'likert' | 'fc'>('likert')
+  const [phase, setPhase] = useState<'primer' | 'likert' | 'fc'>('primer')
   const [fcPairs, setFcPairs] = useState<ForcedChoicePair[]>([])
   const [fcIdx, setFcIdx] = useState(0)
   const [picks, setPicks] = useState<FcPick[]>([])
@@ -64,14 +64,109 @@ export default function TestScreen({ onComplete, onExit }: Props) {
   }
 
   useEffect(() => {
-    if (phase !== 'likert') return
     const onKey = (e: KeyboardEvent) => {
+      if (phase === 'primer') {
+        if (e.key === 'Enter') setPhase('likert')
+        return
+      }
+      if (phase !== 'likert') return
       if (e.key >= '1' && e.key <= '5') choose(Number(e.key) as Answer)
       else if (e.key === 'ArrowLeft') back()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   })
+
+  // ── Primer / guidance phase ──
+  if (phase === 'primer') {
+    const TIPS: { glyph: string; title: string; body: string }[] = [
+      {
+        glyph: '↻',
+        title: 'Think across your whole life',
+        body: 'Answer from the patterns you’ve shown for years — not just how you feel today, this week, or this month.',
+      },
+      {
+        glyph: '◎',
+        title: 'Answer as you are, not as you wish',
+        body: 'Respond from who you actually are — not who you’d like to be, or who others expect. Honesty, especially where it stings a little, reads truest.',
+      },
+      {
+        glyph: '↯',
+        title: 'Trust your first instinct',
+        body: 'Your gut reaction is usually the most accurate. Read each statement once and go — don’t overthink it.',
+      },
+      {
+        glyph: '✦',
+        title: 'It’s about why, not what',
+        body: 'Two people can act the same way for opposite reasons. Answer from the motivation underneath the behaviour.',
+      },
+    ]
+    return (
+      <div style={{ position: 'relative', zIndex: 2, minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+        <div className="container" style={{ paddingTop: 22, maxWidth: 760 }}>
+          <button className="btn btn-ghost" style={{ padding: '0.5em 1em', fontSize: '0.85rem' }} onClick={onExit}>← back</button>
+        </div>
+        <div className="container" style={{ maxWidth: 680, flex: 1, display: 'grid', placeItems: 'center', paddingBlock: 'clamp(1.5rem, 5vh, 3rem)' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+            style={{ width: '100%', textAlign: 'center' }}
+          >
+            <div className="small-caps" style={{ color: 'var(--brass)', marginBottom: 10 }}>◆ Before you begin ◆</div>
+            <h2 className="serif" style={{ fontSize: 'clamp(1.9rem, 5.5vw, 2.8rem)', lineHeight: 1.18, marginBottom: 16 }}>
+              <span className="brass-text">Read yourself clearly</span>
+            </h2>
+            <p className="muted" style={{ fontSize: '1.05rem', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
+              The Enneagram maps nine ways of seeing the world — each shaped by a core motivation, fear, and desire. These{' '}
+              {total} statements read your <em style={{ color: 'var(--bone)', fontStyle: 'normal' }}>core type</em>, its{' '}
+              <em style={{ color: 'var(--bone)', fontStyle: 'normal' }}>wing</em>, and your full{' '}
+              <em style={{ color: 'var(--bone)', fontStyle: 'normal' }}>tritype</em>. A few things make the result far more accurate:
+            </p>
+
+            <div className="glass" style={{ textAlign: 'left', padding: 'clamp(16px, 4vw, 24px)', borderRadius: 18, margin: '22px 0' }}>
+              <div className="stack" style={{ gap: 18 }}>
+                {TIPS.map((tip) => (
+                  <div key={tip.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                    <span
+                      aria-hidden
+                      style={{
+                        flexShrink: 0,
+                        width: 34,
+                        height: 34,
+                        borderRadius: '50%',
+                        display: 'grid',
+                        placeItems: 'center',
+                        color: 'var(--brass)',
+                        fontSize: '1.05rem',
+                        border: '1px solid rgba(200,168,107,0.35)',
+                        background: 'rgba(200,168,107,0.08)',
+                      }}
+                    >
+                      {tip.glyph}
+                    </span>
+                    <div>
+                      <div className="serif" style={{ fontSize: '1.1rem', color: 'var(--bone)' }}>{tip.title}</div>
+                      <p className="muted" style={{ margin: '3px 0 0', fontSize: '0.93rem', lineHeight: 1.6 }}>{tip.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="whisper" style={{ fontSize: '0.84rem', margin: '0 auto 22px', maxWidth: 520 }}>
+              There are no better or worse types — only different. This is for reflection and growth, not a verdict.
+            </p>
+
+            <button className="btn btn-primary" onClick={() => setPhase('likert')} style={{ fontSize: '1.05rem', padding: '0.9em 2.2em' }}>
+              <span className="brass-text" style={{ fontWeight: 600 }}>Begin ✦</span>
+            </button>
+            <div className="whisper" style={{ fontSize: '0.76rem', marginTop: 12 }}>{total} statements · about 4–5 minutes · go with your gut</div>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
 
   // ── Forced-choice tiebreaker phase ──
   if (phase === 'fc') {
