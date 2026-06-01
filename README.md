@@ -16,6 +16,29 @@ npm run dev      # → http://localhost:5174
 No API keys, no network needed at runtime (fonts load from Google Fonts but degrade
 gracefully offline). `npm run build` produces a static bundle; `npm run typecheck` checks types.
 
+## Deploy to GitHub Pages
+
+A workflow at `.github/workflows/deploy.yml` builds and publishes the app automatically.
+The Vite `base` is set from the **repo name** at build time, so assets resolve under
+`/<repo>/` (e.g. `https://<user>.github.io/ennea/`).
+
+1. Create a repo (name it `ennea` for a clean URL) and push:
+   ```bash
+   gh auth login                 # one-time
+   gh repo create ennea --public --source=. --remote=origin --push
+   ```
+2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Done — every push to `main` rebuilds and deploys. Find the live URL in the Actions run
+   (or Settings → Pages).
+
+To deploy under a different repo name, no change needed — the workflow reads the name and
+sets the base path to match. For a user/org root site (`<user>.github.io`), set `VITE_BASE=/`.
+
+**Security note (Pages):** a Content-Security-Policy is injected into the built HTML at
+build time (`script-src 'self'` — no inline/remote scripts or eval). GitHub Pages can't send
+custom response headers, so header-only protections like `frame-ancestors` / `X-Frame-Options`
+don't apply there; host on Netlify/Cloudflare (with a `_headers` file) if you need those.
+
 ## What it does
 
 1. **The test** — 90 first-person statements (10 per type), balanced across **facets**
