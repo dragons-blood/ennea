@@ -3,6 +3,7 @@ import { toPng } from 'html-to-image'
 import EnneagramSymbol from '../../components/EnneagramSymbol'
 import { typeByNumber } from '../../data/enneatypes'
 import type { Result } from '../../data/types'
+import { buildProfileHtml } from '../../lib/profileHtml'
 
 export default function ExportCard({ result }: { result: Result }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -24,6 +25,16 @@ export default function ExportCard({ result }: { result: Result }) {
     } finally {
       setBusy(false)
     }
+  }
+
+  function downloadHtml() {
+    const blob = new Blob([buildProfileHtml(result)], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ennea-type-${result.core}${wingTag}.html`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1500)
   }
 
   return (
@@ -75,7 +86,13 @@ export default function ExportCard({ result }: { result: Result }) {
           </div>
         </div>
       </div>
-      <button className="btn" onClick={save} disabled={busy}>{busy ? 'rendering…' : '⤓ Save as image'}</button>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button className="btn" onClick={save} disabled={busy}>{busy ? 'rendering…' : '⤓ Save as image'}</button>
+        <button className="btn" onClick={downloadHtml}>⤓ Download full reading (HTML)</button>
+      </div>
+      <p className="whisper" style={{ fontSize: '0.72rem', margin: 0, textAlign: 'center', maxWidth: 360 }}>
+        The HTML is a self-contained keepsake — save it to your phone or computer and open it any time, even offline.
+      </p>
     </div>
   )
 }

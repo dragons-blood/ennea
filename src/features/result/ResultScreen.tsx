@@ -4,6 +4,9 @@ import EnneagramSymbol from '../../components/EnneagramSymbol'
 import TypeModal from '../../components/TypeModal'
 import { CENTERS, TYPES, typeByNumber } from '../../data/enneatypes'
 import type { Result, TypeNumber } from '../../data/types'
+import Shadow from './Shadow'
+import LoveWork from './LoveWork'
+import GrowthPath from './GrowthPath'
 import ExportCard from './ExportCard'
 
 const GROWTH = '#74cf9e'
@@ -234,6 +237,14 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
             </div>
           </Section>
 
+          <Section label="The core knot" title="Why you tick — and where you trip">
+            <Shadow result={result} />
+          </Section>
+
+          <Section label="In love & at work" title="How you show up">
+            <LoveWork result={result} />
+          </Section>
+
           {/* arrows */}
           <Section label="Your lines" title="Growth & stress">
             <p className="muted" style={{ marginTop: -6, marginBottom: 18 }}>
@@ -263,6 +274,10 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
                 <p className="muted" style={{ margin: '12px 0 0', fontSize: '0.92rem' }}>{stress.atWorst}</p>
               </div>
             </div>
+          </Section>
+
+          <Section label="Your growth path" title="The work, and the way up">
+            <GrowthPath result={result} />
           </Section>
 
           {/* keep your type */}

@@ -4,15 +4,25 @@ import EnneagramSymbol from '../../components/EnneagramSymbol'
 import TypeModal from '../../components/TypeModal'
 import { CENTERS, typeByNumber } from '../../data/enneatypes'
 import { QUESTIONS } from '../../data/questions'
-import type { Result, TypeNumber } from '../../data/types'
+import type { HistoryEntry } from '../../lib/history'
+import type { TypeNumber } from '../../data/types'
 
 interface Props {
   onBegin: () => void
-  lastResult: Result | null
-  onViewLast: () => void
+  history: HistoryEntry[]
+  onOpen: (entry: HistoryEntry) => void
+  onDelete: (id: string) => void
 }
 
-export default function IntroScreen({ onBegin, lastResult, onViewLast }: Props) {
+const fmtDate = (ms: number) => {
+  try {
+    return new Date(ms).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  } catch {
+    return ''
+  }
+}
+
+export default function IntroScreen({ onBegin, history, onOpen, onDelete }: Props) {
   const [peek, setPeek] = useState<TypeNumber | null>(null)
 
   return (
@@ -53,15 +63,44 @@ export default function IntroScreen({ onBegin, lastResult, onViewLast }: Props) 
           <span className="brass-text" style={{ fontWeight: 600 }}>Begin the test ✦</span>
         </button>
         <div className="whisper" style={{ fontSize: '0.78rem', marginTop: 12 }}>
-          {QUESTIONS.length} statements · about 4 minutes · core type, wing & tritype
+          {QUESTIONS.length} statements · about 4–5 minutes · core type, wing & tritype
         </div>
 
-        {lastResult && (
-          <div style={{ marginTop: 22 }}>
-            <button className="btn btn-ghost" onClick={onViewLast}>
-              view your last result — Type {lastResult.core}
-              {lastResult.wing.id.replace(/^\d/, '')} · {lastResult.tritype.display}
-            </button>
+        {history.length > 0 && (
+          <div className="glass" style={{ marginTop: 26, padding: '16px 18px', borderRadius: 16, textAlign: 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
+              <div className="small-caps" style={{ color: 'var(--brass)' }}>Your saved results</div>
+              <span className="whisper" style={{ fontSize: '0.68rem' }}>saved in this browser</span>
+            </div>
+            <div className="stack" style={{ gap: 8 }}>
+              {history.map((e) => (
+                <div
+                  key={e.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  <button
+                    onClick={() => onOpen(e)}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: 'inherit', padding: 0, font: 'inherit' }}
+                  >
+                    <span aria-hidden style={{ width: 12, height: 12, borderRadius: '50%', background: e.color, flexShrink: 0, boxShadow: `0 0 10px ${e.color}` }} />
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span className="serif" style={{ fontSize: '1.05rem', color: 'var(--bone)' }}>Type {e.wingId}</span>
+                      <span className="whisper" style={{ marginLeft: 10, fontSize: '0.8rem' }}>{e.tritype} · {e.archetype}</span>
+                    </span>
+                    <span className="whisper" style={{ fontSize: '0.72rem', flexShrink: 0 }}>{fmtDate(e.savedAt)}</span>
+                  </button>
+                  <button
+                    onClick={() => onDelete(e.id)}
+                    aria-label="Delete saved result"
+                    title="Delete"
+                    className="whisper"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', lineHeight: 1, padding: '2px 6px', flexShrink: 0 }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

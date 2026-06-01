@@ -5,32 +5,26 @@ import IntroScreen from './features/intro/IntroScreen'
 import TestScreen from './features/test/TestScreen'
 import ResultScreen from './features/result/ResultScreen'
 import { computeResult } from './lib/scoring'
+import { deleteFromHistory, loadHistory, saveToHistory, type HistoryEntry } from './lib/history'
 import type { Answer, FcPick, Result } from './data/types'
 
 type Screen = 'intro' | 'test' | 'result'
-const KEY = 'ennea.result'
-
-function loadResult(): Result | null {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Result) : null
-  } catch {
-    return null
-  }
-}
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('intro')
-  const [result, setResult] = useState<Result | null>(() => loadResult())
+  const [result, setResult] = useState<Result | null>(null)
+  const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory())
 
   function handleComplete(answers: Record<number, Answer>, picks: FcPick[]) {
     const r = computeResult(answers, picks)
     setResult(r)
-    try {
-      localStorage.setItem(KEY, JSON.stringify(r))
-    } catch {
-      /* ignore */
-    }
+    setHistory(saveToHistory(r))
+    setScreen('result')
+    window.scrollTo({ top: 0 })
+  }
+
+  function openFromHistory(entry: HistoryEntry) {
+    setResult(entry.result)
     setScreen('result')
     window.scrollTo({ top: 0 })
   }
@@ -41,7 +35,12 @@ export default function App() {
       <AnimatePresence mode="wait">
         {screen === 'intro' && (
           <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, filter: 'blur(6px)' }} transition={{ duration: 0.5 }}>
-            <IntroScreen onBegin={() => setScreen('test')} lastResult={result} onViewLast={() => setScreen('result')} />
+            <IntroScreen
+              onBegin={() => setScreen('test')}
+              history={history}
+              onOpen={openFromHistory}
+              onDelete={(id) => setHistory(deleteFromHistory(id))}
+            />
           </motion.div>
         )}
         {screen === 'test' && (
