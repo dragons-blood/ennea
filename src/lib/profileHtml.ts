@@ -99,10 +99,11 @@ export function buildProfileHtml(result: Result): string {
 
   ${section('Your shadow & flaws', 'Where you trip', `<div class="card plain" style="border-color:rgba(224,121,111,.35)">${flawList(d.shadow)}</div>`)}
 
-  ${section('Your tritype', `${result.tritype.display} · ${result.tritype.archetype.nickname}`, `${result.tritype.order
+  ${section('Your tritype', `${result.tritype.displayWithWings} · ${result.tritype.archetype.nickname}`, `${result.tritype.order
     .map((n, i) => {
       const tt = typeByNumber(n)
-      return `<div class="tt"><span class="dot" style="background:${tt.color};box-shadow:0 0 16px -4px ${tt.color}">${n}</span><div><div class="label" style="margin:0;color:#c8a86b">${esc(tt.center)} · ${i === 0 ? 'lead' : i === 1 ? 'second' : 'third'}</div><div class="serif" style="font-size:1.1rem;color:#fff">${esc(tt.name)}</div></div></div>`
+      const w = result.tritype.wings[i]
+      return `<div class="tt"><span class="dot" style="background:${tt.color};box-shadow:0 0 16px -4px ${tt.color}">${n}</span><div><div class="label" style="margin:0;color:#c8a86b">${esc(tt.center)} · ${i === 0 ? 'lead' : i === 1 ? 'second' : 'third'}</div><div class="serif" style="font-size:1.1rem;color:#fff">${esc(tt.name)}</div><div style="font-size:.8rem;color:${tt.color}">${esc(w.id)} <span class="muted">· ${esc(w.name)}</span></div></div></div>`
     })
     .join('')}<div class="card" style="margin-top:12px"><p class="muted">${esc(result.tritype.archetype.blurb)}</p></div>`)}
 

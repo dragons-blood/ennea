@@ -11,6 +11,7 @@ import type {
   Result,
   TypeNumber,
   TypeScore,
+  Wing,
 } from '../data/types'
 
 export const GUT: TypeNumber[] = [8, 9, 1]
@@ -55,6 +56,12 @@ const clarityFromGap = (gap: number): Clarity => (gap >= 0.6 ? 'clear' : gap >= 
 const wingClarityFromGap = (gap: number): Clarity => (gap >= 0.5 ? 'clear' : gap >= 0.25 ? 'moderate' : 'close')
 
 const ALL: TypeNumber[] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+/** The wing of a type = its higher-scoring adjacent type. */
+function wingOf(n: TypeNumber, A: (t: TypeNumber) => number): Wing {
+  const [a, b] = typeByNumber(n).wings
+  return A(a.neighbor) >= A(b.neighbor) ? a : b
+}
 
 /** The close top types that warrant a forced-choice round (2–4), or [] if the lead is clear. */
 export function contenders(answers: Record<number, Answer>): TypeNumber[] {
@@ -120,6 +127,7 @@ export function computeResult(answers: Record<number, Answer>, picks: FcPick[] =
   )
 
   const triLeads = [centerScores[0].type, centerScores[1].type, centerScores[2].type].sort((a, b) => A(b) - A(a) || a - b)
+  const triWings = triLeads.map((n) => wingOf(n, A))
 
   const clarity = clarityFromGap(sorted[0].affinity - sorted[1].affinity)
   const closeWith = sorted.slice(1).filter((s) => sorted[0].affinity - s.affinity <= CLOSE_GAP).map((s) => s.type)
@@ -138,6 +146,8 @@ export function computeResult(answers: Record<number, Answer>, picks: FcPick[] =
       order: triLeads,
       set: [...triLeads].sort((a, b) => a - b).join(''),
       display: triLeads.join('–'),
+      wings: triWings,
+      displayWithWings: triWings.map((w) => w.id).join('–'),
       archetype: tritypeBySet(triLeads),
     },
     usedTiebreaker: picks.length > 0,

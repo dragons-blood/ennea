@@ -165,7 +165,7 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
           </Section>
 
           {/* tritype */}
-          <Section label="Your tritype" title={`${result.tritype.display} · ${result.tritype.archetype.nickname}`}>
+          <Section label="Your tritype" title={`${result.tritype.displayWithWings} · ${result.tritype.archetype.nickname}`}>
             <p className="muted" style={{ marginTop: -6, marginBottom: 18 }}>
               Your tritype is the type you lead with in <em>each</em> of the three centers, ordered by dominance — a fuller
               fingerprint than your core type alone.
@@ -185,6 +185,9 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
                       <div className="small-caps" style={{ fontSize: '0.56rem', color: 'var(--brass)' }}>{t.center} · {i === 0 ? 'lead' : i === 1 ? 'second' : 'third'}</div>
                       <div className="serif" style={{ fontSize: '1.15rem' }}>{t.name}</div>
                       <div className="whisper" style={{ fontSize: '0.8rem' }}>{t.also}</div>
+                      <div style={{ marginTop: 5, fontSize: '0.78rem', color: t.color }}>
+                        {result.tritype.wings[i].id} <span className="whisper">· {result.tritype.wings[i].name}</span>
+                      </div>
                     </div>
                   </button>
                 )

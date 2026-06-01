@@ -80,6 +80,8 @@ export interface TritypeResult {
   order: TypeNumber[] // the three center-leads, by dominance
   set: string // ascending id, e.g. '459'
   display: string // dominance order, e.g. '9-4-5'
+  wings: Wing[] // the wing of each member, aligned to `order`
+  displayWithWings: string // e.g. '9w1-4w5-5w4'
   archetype: Tritype
 }
 
