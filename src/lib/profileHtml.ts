@@ -1,7 +1,7 @@
 import type { Result } from '../data/types'
 import { typeByNumber, CENTERS } from '../data/enneatypes'
 import { DEPTH } from '../data/depth'
-import { LEVELS } from '../data/levels'
+import { LEVELS, type LevelBand } from '../data/levels'
 import { CAREERS } from '../data/careers'
 import { EXEMPLARS, type Exemplar } from '../data/exemplars'
 
@@ -45,8 +45,8 @@ export function buildProfileHtml(result: Result): string {
       .map(([l, b, col]) => `<div class="card plain"><div class="label" style="color:${col}">${esc(l)}</div><p class="muted">${esc(b)}</p></div>`)
       .join('')}</div>`
 
-  const bandRow = (label: string, color: string, headline: string, body: string) =>
-    `<div class="card plain" style="border-left:3px solid ${color}"><span class="chip" style="border-color:${color}66;background:${color}1f;color:${color}">${esc(label)}</span><div class="serif" style="font-size:1.1rem;color:#fff;margin:10px 0 0">${esc(headline)}</div><p class="muted" style="margin-top:6px">${esc(body)}</p></div>`
+  const bandRow = (label: string, color: string, band: LevelBand) =>
+    `<div class="card plain" style="border-left:3px solid ${color}"><span class="chip" style="border-color:${color}66;background:${color}1f;color:${color}">${esc(label)}</span><div class="serif" style="font-size:1.1rem;color:#fff;margin:10px 0 0">${esc(band.headline)}</div><p class="muted" style="margin-top:6px">${esc(band.body)}</p><ul style="margin-top:8px">${band.signs.map((s) => `<li><span style="color:${color}">•</span> ${esc(s)}</li>`).join('')}</ul></div>`
   const people = (arr: Exemplar[]) =>
     `<div class="grid">${arr
       .map((p) => `<div class="tile"><div style="font-family:Georgia,serif;font-size:1rem;color:#fff">${esc(p.name)}</div><div class="muted" style="font-size:.78rem;margin-top:2px">${esc(p.tag)}</div></div>`)
@@ -136,7 +136,7 @@ export function buildProfileHtml(result: Result): string {
     <div class="label" style="margin-top:16px">Practice this</div><ul>${d.practices.map((p) => `<li><span style="color:#74cf9e">→</span> ${esc(p)}</li>`).join('')}</ul>
     <p class="muted" style="margin-top:14px"><b style="color:#e0796f">Under stress</b> you can slip toward Type ${t.stressTo} (${esc(s.name)}) — ${esc(s.atWorst)}</p></div>`)}
 
-  ${section('Levels of development', 'Healthy, average & under strain', `<div style="display:grid;gap:12px">${bandRow('Healthy', '#74cf9e', lv.healthy.headline, lv.healthy.body)}${bandRow('Average', '#c8a86b', lv.average.headline, lv.average.body)}${bandRow('Under strain', '#e0796f', lv.unhealthy.headline, lv.unhealthy.body)}</div>`)}
+  ${section('Levels of development', 'Healthy, average & under strain', `<div style="display:grid;gap:12px">${bandRow('Healthy', '#74cf9e', lv.healthy)}${bandRow('Average', '#c8a86b', lv.average)}${bandRow('Under strain', '#e0796f', lv.unhealthy)}</div><div class="two" style="margin-top:14px"><div class="card plain" style="border-color:rgba(200,168,107,.4)"><div class="label" style="color:#c8a86b">↑ Wake-up call · healthy → average</div><p class="muted">${esc(lv.wakeUpCall)}</p></div><div class="card plain" style="border-color:rgba(224,121,111,.4)"><div class="label" style="color:#e0796f">↓ Red flag · average → under strain</div><p class="muted">${esc(lv.redFlag)}</p></div></div>`)}
 
   ${section('Callings', 'Where your gifts find work', `<div class="card"><p class="serif" style="font-size:1.1rem">${esc(car.note)}</p><div style="margin-top:14px">${chips(car.paths, c)}</div></div>`)}
 

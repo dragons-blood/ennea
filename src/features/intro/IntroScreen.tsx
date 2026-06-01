@@ -11,6 +11,7 @@ import type { Result, TypeNumber } from '../../data/types'
 interface Props {
   onBegin: () => void
   onManual: (result: Result) => void
+  onExplore: () => void
   history: HistoryEntry[]
   onOpen: (entry: HistoryEntry) => void
   onDelete: (id: string) => void
@@ -24,7 +25,7 @@ const fmtDate = (ms: number) => {
   }
 }
 
-export default function IntroScreen({ onBegin, onManual, history, onOpen, onDelete }: Props) {
+export default function IntroScreen({ onBegin, onManual, onExplore, history, onOpen, onDelete }: Props) {
   const [peek, setPeek] = useState<TypeNumber | null>(null)
 
   return (
@@ -61,9 +62,14 @@ export default function IntroScreen({ onBegin, onManual, history, onOpen, onDele
           ))}
         </div>
 
-        <button className="btn btn-primary" onClick={onBegin} style={{ fontSize: '1.05rem', padding: '0.9em 2em' }}>
-          <span className="brass-text" style={{ fontWeight: 600 }}>Begin the test ✦</span>
-        </button>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button className="btn btn-primary" onClick={onBegin} style={{ fontSize: '1.05rem', padding: '0.9em 2em' }}>
+            <span className="brass-text" style={{ fontWeight: 600 }}>Begin the test ✦</span>
+          </button>
+          <button className="btn btn-ghost" onClick={() => onExplore()} style={{ fontSize: '0.95rem', padding: '0.8em 1.4em' }}>
+            Explore the nine types →
+          </button>
+        </div>
         <div className="whisper" style={{ fontSize: '0.78rem', marginTop: 12 }}>
           {QUESTIONS.length} statements · about 4–5 minutes · core type, wing & tritype
         </div>

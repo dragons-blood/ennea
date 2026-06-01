@@ -1,10 +1,10 @@
-import type { Result } from '../../data/types'
+import type { TypeNumber } from '../../data/types'
 import { typeByNumber } from '../../data/enneatypes'
 import { DEPTH } from '../../data/depth'
 
-export default function Shadow({ result }: { result: Result }) {
-  const t = typeByNumber(result.core)
-  const d = DEPTH[result.core]
+export default function Shadow({ type }: { type: TypeNumber }) {
+  const t = typeByNumber(type)
+  const d = DEPTH[type]
   return (
     <div className="stack" style={{ gap: 18, ['--accent' as string]: t.color }}>
       <div className="glass glass-accent" style={{ ['--accent' as string]: t.color, padding: 'clamp(1.4rem, 4vw, 2.1rem)', borderRadius: 'var(--radius)' }}>

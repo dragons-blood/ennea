@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import type { Result } from '../../data/types'
+import type { TypeNumber } from '../../data/types'
 import { typeByNumber } from '../../data/enneatypes'
 import { EXEMPLARS, type Exemplar } from '../../data/exemplars'
 
@@ -22,9 +22,9 @@ function Group({ label, people, color }: { label: string; people: Exemplar[]; co
   )
 }
 
-export default function Lineage({ result }: { result: Result }) {
-  const t = typeByNumber(result.core)
-  const lin = EXEMPLARS[result.core]
+export default function Lineage({ type }: { type: TypeNumber }) {
+  const t = typeByNumber(type)
+  const lin = EXEMPLARS[type]
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -35,7 +35,7 @@ export default function Lineage({ result }: { result: Result }) {
       style={{ gap: 14 }}
     >
       <p className="muted" style={{ marginTop: -6, marginBottom: 4 }}>
-        Kindred spirits who tend to share your core pattern — Type {result.core}, {t.name.replace(/^The\s+/, 'the ')}.
+        Kindred spirits who tend to share the Type {type} pattern — {t.name.replace(/^The\s+/, 'the ')}.
       </p>
       <Group label="In the world" people={lin.real} color={t.color} />
       <Group label="On the page & screen" people={lin.fictional} color={t.color} />

@@ -1,4 +1,4 @@
-import type { Result } from '../../data/types'
+import type { TypeNumber } from '../../data/types'
 import { typeByNumber } from '../../data/enneatypes'
 import { DEPTH } from '../../data/depth'
 
@@ -15,9 +15,9 @@ function Trio({ items, color }: { items: [string, string, string][]; color: stri
   )
 }
 
-export default function LoveWork({ result }: { result: Result }) {
-  const t = typeByNumber(result.core)
-  const d = DEPTH[result.core]
+export default function LoveWork({ type }: { type: TypeNumber }) {
+  const t = typeByNumber(type)
+  const d = DEPTH[type]
   return (
     <div className="stack" style={{ gap: 28 }}>
       <div>

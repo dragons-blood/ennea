@@ -1,10 +1,10 @@
-import type { Result } from '../../data/types'
+import type { TypeNumber } from '../../data/types'
 import { typeByNumber } from '../../data/enneatypes'
 import { CAREERS } from '../../data/careers'
 
-export default function Callings({ result }: { result: Result }) {
-  const t = typeByNumber(result.core)
-  const c = CAREERS[result.core]
+export default function Callings({ type }: { type: TypeNumber }) {
+  const t = typeByNumber(type)
+  const c = CAREERS[type]
   return (
     <div className="glass glass-accent" style={{ ['--accent' as string]: t.color, padding: 'clamp(1.4rem, 4vw, 2.1rem)', borderRadius: 'var(--radius)' }}>
       <p className="serif" style={{ fontSize: '1.12rem', lineHeight: 1.7, color: 'var(--mist)', marginTop: 0 }}>{c.note}</p>

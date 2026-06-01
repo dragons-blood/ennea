@@ -78,7 +78,7 @@ function Badge({ n, size = 40 }: { n: TypeNumber; size?: number }) {
   )
 }
 
-export default function ResultScreen({ result, onRetake, onHome }: { result: Result; onRetake: () => void; onHome: () => void }) {
+export default function ResultScreen({ result, onRetake, onHome, onExplore }: { result: Result; onRetake: () => void; onHome: () => void; onExplore: (type?: TypeNumber) => void }) {
   const [explore, setExplore] = useState<TypeNumber | null>(null)
   const core = typeByNumber(result.core)
   const wingTag = result.wing.id.slice(1) // 'w1'
@@ -250,11 +250,11 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
           </Section>
 
           <Section label="The core knot" title="Why you tick — and where you trip">
-            <Shadow result={result} />
+            <Shadow type={result.core} />
           </Section>
 
           <Section label="In love & at work" title="How you show up">
-            <LoveWork result={result} />
+            <LoveWork type={result.core} />
           </Section>
 
           {/* arrows */}
@@ -289,22 +289,22 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
           </Section>
 
           <Section label="Your growth path" title="The work, and the way up">
-            <GrowthPath result={result} />
+            <GrowthPath type={result.core} />
           </Section>
 
           {/* levels of development */}
           <Section label="Levels of development" title="Healthy, average & under strain">
-            <Levels result={result} />
+            <Levels type={result.core} />
           </Section>
 
           {/* callings / careers */}
           <Section label="Callings" title="Where your gifts find work">
-            <Callings result={result} />
+            <Callings type={result.core} />
           </Section>
 
           {/* lineage / kindred spirits */}
           <Section label="Lineage" title="Kindred spirits">
-            <Lineage result={result} />
+            <Lineage type={result.core} />
           </Section>
 
           {/* keep your type */}
@@ -314,7 +314,7 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
 
           {/* explore */}
           <Section label="Wander" title="Explore all nine types">
-            <p className="muted" style={{ marginTop: -6, marginBottom: 16 }}>Tap any type — here or on the symbol above — to read its story.</p>
+            <p className="muted" style={{ marginTop: -6, marginBottom: 16 }}>Tap any type for a quick peek — or open the full library for the in-depth page on every type.</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {TYPES.map((t) => (
                 <button key={t.number} onClick={() => setExplore(t.number)} className="chip" style={{ ['--accent' as string]: t.color, cursor: 'pointer', fontWeight: t.number === result.core ? 600 : 400 }}>
@@ -322,6 +322,9 @@ export default function ResultScreen({ result, onRetake, onHome }: { result: Res
                 </button>
               ))}
             </div>
+            <button className="btn btn-primary" onClick={() => onExplore(result.core)} style={{ marginTop: 18 }}>
+              <span className="brass-text" style={{ fontWeight: 600 }}>Open the full library ✦</span>
+            </button>
           </Section>
 
           {/* footer */}

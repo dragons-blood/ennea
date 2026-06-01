@@ -1,13 +1,13 @@
-import type { Result } from '../../data/types'
+import type { TypeNumber } from '../../data/types'
 import { typeByNumber } from '../../data/enneatypes'
 import { DEPTH } from '../../data/depth'
 
 const GROWTH = '#74cf9e'
 
-export default function GrowthPath({ result }: { result: Result }) {
-  const t = typeByNumber(result.core)
+export default function GrowthPath({ type }: { type: TypeNumber }) {
+  const t = typeByNumber(type)
   const g = typeByNumber(t.growthTo)
-  const d = DEPTH[result.core]
+  const d = DEPTH[type]
   return (
     <div className="glass glass-accent" style={{ ['--accent' as string]: GROWTH, padding: 'clamp(1.5rem, 4vw, 2.3rem)', borderRadius: 'var(--radius)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
