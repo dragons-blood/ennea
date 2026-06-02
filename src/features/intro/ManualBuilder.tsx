@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { CENTERS, typeByNumber } from '../../data/enneatypes'
 import { buildManualResult, type ManualMember } from '../../lib/scoring'
-import type { Result, TypeNumber, Wing } from '../../data/types'
+import type { Center, Result, TypeNumber } from '../../data/types'
 
 const shortName = (n: TypeNumber) => typeByNumber(n).name.replace(/^The\s+/, '')
 
@@ -53,7 +53,7 @@ function TypePill({ n, selected, onClick }: { n: TypeNumber; selected: boolean; 
   )
 }
 
-/** The two wing options for a given type, e.g. 4w3 / 4w5 — tinted with that type's hue. */
+/** The two wing options for a given type (e.g. 4w3 / 4w5), tinted with that type's hue. */
 function WingPills({ type, value, onPick }: { type: TypeNumber; value: string | null; onPick: (id: string) => void }) {
   const t = typeByNumber(type)
   return (
@@ -113,46 +113,60 @@ function CenterPicks({
   )
 }
 
-const wingLabel = { fontSize: '0.6rem', textTransform: 'uppercase' as const, letterSpacing: '0.16em', margin: '8px 0 6px' }
-
-interface MemberPick {
+interface SlotPick {
   type: TypeNumber
+  center: Center
   wingId: string | null
 }
 
+const SLOT_META = [
+  { label: 'Your lead type', sub: 'the type you most identify with — your core' },
+  { label: 'Your second type', sub: 'your next most dominant center' },
+  { label: 'Your third type', sub: 'your remaining center' },
+]
+
 export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) => void }) {
   const [open, setOpen] = useState(false)
-  const [core, setCore] = useState<TypeNumber | null>(null)
-  const [coreWingId, setCoreWingId] = useState<string | null>(null)
-  const [others, setOthers] = useState<Record<string, MemberPick>>({})
+  const [slots, setSlots] = useState<SlotPick[]>([])
 
-  const coreType = core ? typeByNumber(core) : null
-  const otherCenters = useMemo(
-    () => (coreType ? CENTERS.filter((c) => c.name !== coreType.center) : []),
-    [coreType],
-  )
-  const coreWing: Wing | null = (coreType && coreWingId && coreType.wings.find((w) => w.id === coreWingId)) || null
-  const ready =
-    !!core && !!coreWing && otherCenters.every((c) => others[c.name] && others[c.name].wingId)
-
-  function pickCore(n: TypeNumber) {
-    if (n === core) return
-    setCore(n)
-    setCoreWingId(null)
-    setOthers({})
+  // centres still available for slot i = those not already used by an earlier slot
+  const availableCenters = (i: number) => {
+    const usedBefore = slots.slice(0, i).map((s) => s.center)
+    return CENTERS.filter((c) => !usedBefore.includes(c.name))
   }
+
+  function pickType(i: number, type: TypeNumber) {
+    const center = typeByNumber(type).center
+    setSlots((prev) => {
+      if (prev[i]?.type === type) return prev
+      const next = prev.slice(0, i)
+      next[i] = { type, center, wingId: null }
+      // keep later slots only if this slot's centre is unchanged (their exclusions still hold)
+      if (prev[i] && prev[i].center === center) for (let j = i + 1; j < prev.length; j++) next[j] = prev[j]
+      return next
+    })
+  }
+
+  function pickWing(i: number, wingId: string) {
+    setSlots((prev) => {
+      const next = [...prev]
+      next[i] = { ...next[i], wingId }
+      return next
+    })
+  }
+
+  const ready = slots.length === 3 && slots.every((s) => s.wingId)
 
   function reveal() {
-    if (!core || !coreWing) return
-    const members: ManualMember[] = []
-    for (const c of otherCenters) {
-      const o = others[c.name]
-      const wing = o && typeByNumber(o.type).wings.find((w) => w.id === o.wingId)
-      if (!wing) return
-      members.push({ type: o.type, wing })
-    }
-    onGenerate(buildManualResult(core, coreWing, members))
+    if (!ready) return
+    const members: ManualMember[] = slots.map((s) => ({
+      type: s.type,
+      wing: typeByNumber(s.type).wings.find((w) => w.id === s.wingId)!,
+    }))
+    onGenerate(buildManualResult(members))
   }
+
+  const preview = slots.map((s) => (s.wingId ? `${s.type}${s.wingId.slice(1)}` : `${s.type}`)).join(' – ')
 
   return (
     <div style={{ marginTop: 24, textAlign: 'center' }}>
@@ -192,64 +206,47 @@ export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) 
           >
             <div className="glass" style={{ marginTop: 14, padding: 'clamp(16px, 4vw, 22px)', borderRadius: 16, textAlign: 'left' }}>
               <p className="whisper" style={{ fontSize: '0.78rem', margin: '0 0 18px' }}>
-                Skip the test and explore any combination — your full reading is built from the types and wings you choose.
+                Skip the test and explore any combination — build your tritype in your own order of dominance, with a wing
+                on each.
               </p>
 
-              {/* 1 · core type */}
-              <div className="small-caps" style={{ color: 'var(--brass)', marginBottom: 10 }}>1 · The type you lead with</div>
-              <div className="stack" style={{ gap: 12 }}>
-                {CENTERS.map((c) => (
-                  <CenterPicks key={c.name} centerName={c.name} types={c.types} value={core} onPick={pickCore} />
-                ))}
-              </div>
+              {[0, 1, 2].map((i) => {
+                const visible = i === 0 || (slots[i - 1] && slots[i - 1].wingId)
+                if (!visible) return null
+                const cur = slots[i]
+                return (
+                  <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} style={{ marginTop: i === 0 ? 0 : 22 }}>
+                    <div className="small-caps" style={{ color: 'var(--brass)', marginBottom: 3 }}>{i + 1} · {SLOT_META[i].label}</div>
+                    <p className="whisper" style={{ fontSize: '0.72rem', margin: '0 0 10px' }}>{SLOT_META[i].sub}</p>
+                    <div className="stack" style={{ gap: 12 }}>
+                      {availableCenters(i).map((c) => (
+                        <CenterPicks
+                          key={c.name}
+                          centerName={c.name}
+                          types={c.types}
+                          value={cur && cur.center === c.name ? cur.type : null}
+                          onPick={(n) => pickType(i, n)}
+                        />
+                      ))}
+                    </div>
+                    {cur && (
+                      <div style={{ paddingLeft: 2, marginTop: 8 }}>
+                        <div className="whisper" style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 6 }}>↳ its wing</div>
+                        <WingPills type={cur.type} value={cur.wingId} onPick={(id) => pickWing(i, id)} />
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
 
-              {coreType && (
-                <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                  {/* 2 · core wing */}
-                  <div className="small-caps" style={{ color: 'var(--brass)', margin: '22px 0 10px' }}>2 · Your wing</div>
-                  <WingPills type={coreType.number} value={coreWingId} onPick={setCoreWingId} />
-
-                  {/* 3 · the other two centers, each with its own wing */}
-                  <div className="small-caps" style={{ color: 'var(--brass)', margin: '22px 0 4px' }}>3 · Complete your tritype</div>
-                  <p className="whisper" style={{ fontSize: '0.72rem', margin: '0 0 12px' }}>
-                    The type you lead with in each of the other two centers — and its wing.
-                  </p>
-                  <div className="stack" style={{ gap: 16 }}>
-                    {otherCenters.map((c) => {
-                      const o = others[c.name]
-                      return (
-                        <div key={c.name}>
-                          <CenterPicks
-                            centerName={c.name}
-                            types={c.types}
-                            value={o?.type ?? null}
-                            onPick={(n) => setOthers((prev) => ({ ...prev, [c.name]: { type: n, wingId: null } }))}
-                          />
-                          {o && (
-                            <div style={{ paddingLeft: 2 }}>
-                              <div className="whisper" style={wingLabel}>↳ its wing</div>
-                              <WingPills
-                                type={o.type}
-                                value={o.wingId}
-                                onPick={(id) => setOthers((prev) => ({ ...prev, [c.name]: { ...prev[c.name], wingId: id } }))}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  <button
-                    className="btn btn-primary"
-                    onClick={reveal}
-                    disabled={!ready}
-                    style={{ marginTop: 24, width: '100%' }}
-                  >
-                    <span className="brass-text" style={{ fontWeight: 600 }}>Reveal this tritype ✦</span>
-                  </button>
-                </motion.div>
+              {preview && (
+                <div className="whisper" style={{ fontSize: '0.8rem', marginTop: 20, letterSpacing: '0.04em' }}>
+                  Your tritype: <span style={{ color: 'var(--brass)' }}>{preview}</span>
+                </div>
               )}
+              <button className="btn btn-primary" onClick={reveal} disabled={!ready} style={{ marginTop: preview ? 12 : 24, width: '100%' }}>
+                <span className="brass-text" style={{ fontWeight: 600 }}>Reveal this tritype ✦</span>
+              </button>
             </div>
           </motion.div>
         )}

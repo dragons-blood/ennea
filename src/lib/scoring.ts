@@ -175,8 +175,6 @@ export function computeResult(answers: Record<number, Answer>, picks: FcPick[] =
   return assembleResult(affinities(answers, picks), rawSums(answers), picks.length > 0)
 }
 
-const CENTER_ORDER: Center[] = ['Gut', 'Heart', 'Head']
-
 export interface ManualMember {
   type: TypeNumber
   wing: Wing
@@ -184,30 +182,22 @@ export interface ManualMember {
 
 /**
  * Build a full Result from a hand-picked tritype, for people who already know their type or
- * want to explore other combinations. `core` leads (with `coreWing`); `others` are the picked
- * type + wing in the other two centres. We synthesise affinities so the chosen types are each
- * their centre's lead (ranked core ▸ second ▸ third) and feed every chosen wing through as an
- * override, then run the exact same assembly the test uses — so a manual reading is
- * structurally identical to a scored one.
+ * want to explore other combinations. `members` are given in the user's OWN order of dominance
+ * (lead ▸ second ▸ third), each with its chosen wing. We synthesise affinities that preserve
+ * that exact order and feed every chosen wing through as an override, then run the same assembly
+ * the test uses — so a manual reading is structurally identical to a scored one.
  */
-export function buildManualResult(core: TypeNumber, coreWing: Wing, others: ManualMember[]): Result {
-  const ordered = [...others].sort(
-    (a, b) => CENTER_ORDER.indexOf(typeByNumber(a.type).center) - CENTER_ORDER.indexOf(typeByNumber(b.type).center),
-  )
+export function buildManualResult(members: ManualMember[]): Result {
+  const WEIGHTS = [2.4, 1.5, 1.0] // lead ▸ second ▸ third — keeps the chosen dominance order
   const aff = emptyAff()
   for (const t of ALL) aff[t] = -0.5
-  aff[core] = 2.4 // clear overall lead
-  if (ordered[0]) aff[ordered[0].type] = 1.5 // second centre lead
-  if (ordered[1]) aff[ordered[1].type] = 1.0 // third centre lead
-
-  // Each chosen wing: record the override and gently elevate the wing neighbour for the bars,
-  // always kept below the lowest tritype lead (1.0) so it never displaces a centre lead.
-  const wingOverrides: Partial<Record<TypeNumber, Wing>> = { [core]: coreWing }
-  aff[coreWing.neighbor] = Math.max(aff[coreWing.neighbor], 0.85)
-  for (const o of ordered) {
-    wingOverrides[o.type] = o.wing
-    aff[o.wing.neighbor] = Math.max(aff[o.wing.neighbor], 0.7)
-  }
+  const wingOverrides: Partial<Record<TypeNumber, Wing>> = {}
+  members.forEach((m, i) => {
+    aff[m.type] = WEIGHTS[i] ?? 0.9 // a member's weight always exceeds any wing elevation below
+    wingOverrides[m.type] = m.wing
+    // gently elevate the wing neighbour for the bars, kept below the lowest lead (1.0)
+    aff[m.wing.neighbor] = Math.max(aff[m.wing.neighbor], i === 0 ? 0.85 : 0.7)
+  })
   return assembleResult(aff, emptyAff(), false, wingOverrides, true)
 }
 
