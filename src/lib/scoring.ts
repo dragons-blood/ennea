@@ -27,9 +27,15 @@ const CENTER_CLOSE_GAP = 0.22
 type Aff = Record<TypeNumber, number>
 const emptyAff = (): Aff => ({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 })
 
+// A reverse-keyed item flips the response: agreeing with it means LESS of that type. Keying
+// happens BEFORE within-person centring, so chronic agreeing/disagreeing still cancels out —
+// and because every type carries the same number of reverse items, a flat responder still
+// lands at ~50% across the board.
+const keyed = (q: { reverse?: boolean }, ans: number) => (q.reverse ? 6 - ans : ans)
+
 function rawSums(answers: Record<number, Answer>): Aff {
   const raw = emptyAff()
-  for (const q of QUESTIONS) raw[q.type] += answers[q.id] ?? 3
+  for (const q of QUESTIONS) raw[q.type] += keyed(q, answers[q.id] ?? 3)
   return raw
 }
 
@@ -40,12 +46,12 @@ function rawSums(answers: Record<number, Answer>): Aff {
  * measure. Optional forced-choice picks nudge their winners.
  */
 export function affinities(answers: Record<number, Answer>, picks: FcPick[] = []): Aff {
-  const resp = QUESTIONS.map((q) => answers[q.id] ?? 3)
+  const resp = QUESTIONS.map((q) => keyed(q, answers[q.id] ?? 3))
   const mean = resp.reduce((a, b) => a + b, 0) / resp.length
   const variance = resp.reduce((a, b) => a + (b - mean) ** 2, 0) / resp.length
   const sd = Math.sqrt(variance) || 1
   const aff = emptyAff()
-  for (const q of QUESTIONS) aff[q.type] += ((answers[q.id] ?? 3) - mean) / sd
+  for (const q of QUESTIONS) aff[q.type] += (keyed(q, answers[q.id] ?? 3) - mean) / sd
   for (const t of [1, 2, 3, 4, 5, 6, 7, 8, 9] as TypeNumber[]) aff[t] /= ITEMS_PER_TYPE
   for (const p of picks) aff[p.chosen] += FC_BONUS
   return aff

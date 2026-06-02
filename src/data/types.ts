@@ -50,6 +50,7 @@ export interface Question {
   text: string
   facet: Facet
   signature?: boolean // a punchy, discriminating item — used in forced-choice tiebreakers
+  reverse?: boolean // reverse-keyed: agreeing indicates LESS of this type (scored 6 - answer)
 }
 
 // 1 (strongly disagree) … 5 (strongly agree)
