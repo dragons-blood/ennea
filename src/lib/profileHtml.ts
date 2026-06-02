@@ -161,7 +161,7 @@ export function buildProfileHtml(result: Result): string {
 
   ${section('Callings', 'Where your gifts find work', `<div class="card"><p class="serif" style="font-size:1.1rem">${esc(car.note)}</p><div style="margin-top:14px">${chips(car.paths, c)}</div></div>`)}
 
-  ${section('Lineage', 'Kindred spirits', `<div class="label">In the world</div>${people(lin.real)}<div class="label" style="margin-top:18px">On the page &amp; screen</div>${people(lin.fictional)}<p class="muted" style="font-size:.82rem;margin-top:14px">Typings are educated guesses from the Enneagram community, not facts — illustrations of the pattern, not verdicts.</p>`)}
+  ${section('Lineage', 'Kindred spirits', `<div class="label">In the world</div>${people(lin.real)}<div class="label" style="margin-top:18px">On the page &amp; screen</div>${people(lin.fictional)}<div class="label" style="margin-top:18px">Myth, legend &amp; archetype</div>${people(lin.myth)}<p class="muted" style="font-size:.82rem;margin-top:14px">Real people, characters, and figures of myth — educated guesses and archetypal resonances, not facts. Illustrations of the pattern, not verdicts.</p>`)}
 
   <footer>
     ${result.manual

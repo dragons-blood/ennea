@@ -1,9 +1,10 @@
 import type { TypeNumber } from './types'
 
-// "Lineage" — kindred spirits who share each core type's pattern. Typings of real people and
-// characters can never be definitive (type is about inner motivation, not behaviour), so these
-// reflect long-standing Enneagram-community consensus and are meant to illuminate the pattern,
-// not to diagnose anyone. Drawn from the CORE type — the clearest, most reliably-typed signal.
+// "Lineage" — kindred spirits who share each core type's pattern, across three registers: real
+// people, characters from page & screen, and figures from myth, legend & the archetypal world.
+// Typings can never be definitive (type is about inner motivation, not behaviour), so these
+// reflect long-standing community consensus and the resonance of the archetype — meant to
+// illuminate the pattern, not to diagnose. Drawn from the CORE type, the clearest signal.
 
 export interface Exemplar {
   name: string
@@ -12,6 +13,7 @@ export interface Exemplar {
 export interface Lineage {
   real: Exemplar[]
   fictional: Exemplar[]
+  myth: Exemplar[] // gods, myth, legend & archetype
 }
 
 export const EXEMPLARS: Record<TypeNumber, Lineage> = {
@@ -36,7 +38,14 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Inspector Javert', tag: 'Les Misérables' },
       { name: 'Lisa Simpson', tag: 'The Simpsons' },
       { name: 'Mary Poppins', tag: 'practically perfect' },
-      { name: 'Mr. Darcy', tag: 'Pride and Prejudice' },
+    ],
+    myth: [
+      { name: 'Apollo', tag: 'Greek god of order, reason & the ideal' },
+      { name: 'Athena', tag: 'principled wisdom & just war' },
+      { name: 'Maat', tag: 'Egyptian goddess of truth & cosmic order' },
+      { name: 'Themis', tag: 'Titaness of divine law' },
+      { name: 'Astraea', tag: 'goddess of justice & purity' },
+      { name: 'Vishnu', tag: 'Hindu preserver of dharma & order' },
     ],
   },
   2: {
@@ -59,8 +68,15 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Olaf', tag: 'Frozen — “warm hugs”' },
       { name: 'Mrs. Doubtfire', tag: 'caretaker in disguise' },
       { name: 'Snow White', tag: 'the nurturing innocent' },
-      { name: 'Charlotte', tag: 'Charlotte’s Web' },
       { name: 'Glinda', tag: 'the Good Witch of Oz' },
+    ],
+    myth: [
+      { name: 'Demeter', tag: 'Greek nurturing mother goddess' },
+      { name: 'Guanyin', tag: 'goddess of boundless compassion & mercy' },
+      { name: 'Hathor', tag: 'Egyptian goddess of love & motherhood' },
+      { name: 'The Madonna', tag: 'the compassionate mother' },
+      { name: 'Freyja', tag: 'Norse goddess of love' },
+      { name: 'The Good Samaritan', tag: 'the selfless helper of parable' },
     ],
   },
   3: {
@@ -83,8 +99,15 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Lightning McQueen', tag: 'Cars' },
       { name: 'Tom Ripley', tag: 'The Talented Mr. Ripley' },
       { name: 'Frank Abagnale', tag: 'Catch Me If You Can' },
-      { name: 'Gilderoy Lockhart', tag: 'Harry Potter — image over substance' },
       { name: 'Patrick Bateman', tag: 'American Psycho — the hollow extreme' },
+    ],
+    myth: [
+      { name: 'Nike', tag: 'Greek goddess of victory' },
+      { name: 'Achilles', tag: 'driven by glory — to be the greatest' },
+      { name: 'Jason', tag: 'the charismatic prize-winning hero' },
+      { name: 'Hermes', tag: 'the slick, successful operator' },
+      { name: 'Julius Caesar', tag: 'legendary conqueror' },
+      { name: 'Ozymandias', tag: '“king of kings,” obsessed with legacy' },
     ],
   },
   4: {
@@ -108,7 +131,14 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Anakin Skywalker', tag: 'Star Wars — longing & shadow' },
       { name: 'Severus Snape', tag: 'Harry Potter — the brooding outsider' },
       { name: 'Rue Bennett', tag: 'Euphoria' },
-      { name: 'Amélie', tag: 'Amélie' },
+    ],
+    myth: [
+      { name: 'Orpheus', tag: 'the tragic artist of longing' },
+      { name: 'Persephone', tag: 'queen between two worlds' },
+      { name: 'Icarus', tag: 'yearned to rise above the ordinary' },
+      { name: 'Echo', tag: 'pined away in unrequited longing' },
+      { name: 'Narcissus', tag: 'lost in his own reflection' },
+      { name: 'Pygmalion', tag: 'the artist in love with his ideal' },
     ],
   },
   5: {
@@ -131,8 +161,15 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'L', tag: 'Death Note' },
       { name: 'Egon Spengler', tag: 'Ghostbusters' },
       { name: 'Bruce Banner', tag: 'Marvel — the cerebral scientist' },
-      { name: 'Doc Brown', tag: 'Back to the Future' },
       { name: 'Hannibal Lecter', tag: 'the chilling intellect' },
+    ],
+    myth: [
+      { name: 'Prometheus', tag: 'forethought & the bringer of forbidden fire' },
+      { name: 'Hephaestus', tag: 'the solitary smith-inventor' },
+      { name: 'Thoth', tag: 'Egyptian god of knowledge & writing' },
+      { name: 'Odin', tag: 'gave an eye for wisdom' },
+      { name: 'Merlin', tag: 'the sage wizard' },
+      { name: 'Saraswati', tag: 'Hindu goddess of knowledge' },
     ],
   },
   6: {
@@ -155,8 +192,15 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Jon Snow', tag: 'Game of Thrones' },
       { name: 'Chihiro', tag: 'Spirited Away' },
       { name: 'Marlin', tag: 'Finding Nemo' },
-      { name: 'Katniss Everdeen', tag: 'The Hunger Games' },
       { name: 'George Costanza', tag: 'Seinfeld — neurotic worst-case' },
+    ],
+    myth: [
+      { name: 'Argus Panoptes', tag: 'the hundred-eyed, ever-watchful guardian' },
+      { name: 'Heimdall', tag: 'Norse vigilant watchman of the gods' },
+      { name: 'Hector', tag: 'the dutiful defender of Troy' },
+      { name: 'Cerberus', tag: 'the faithful guard of the gate' },
+      { name: 'Horatius', tag: 'held the bridge against an army' },
+      { name: 'The sworn knight', tag: 'the loyal liege of legend' },
     ],
   },
   7: {
@@ -180,7 +224,14 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Donkey', tag: 'Shrek' },
       { name: 'Phoebe Buffay', tag: 'Friends' },
       { name: 'Fred & George Weasley', tag: 'Harry Potter' },
-      { name: 'Mabel Pines', tag: 'Gravity Falls' },
+    ],
+    myth: [
+      { name: 'Dionysus', tag: 'Greek god of wine, revelry & ecstasy' },
+      { name: 'Pan', tag: 'the wild spirit of spontaneity & play' },
+      { name: 'Mercury', tag: 'the fleet, restless messenger' },
+      { name: 'Puck', tag: 'the merry trickster of midsummer' },
+      { name: 'Anansi', tag: 'the playful West-African trickster' },
+      { name: 'The puer aeternus', tag: 'the eternal-youth archetype' },
     ],
   },
   8: {
@@ -204,7 +255,14 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Miranda Priestly', tag: 'The Devil Wears Prada' },
       { name: 'The Bride', tag: 'Kill Bill' },
       { name: 'Tyler Durden', tag: 'Fight Club' },
-      { name: 'Stanley Kowalski', tag: 'A Streetcar Named Desire' },
+    ],
+    myth: [
+      { name: 'Zeus', tag: 'king of the gods' },
+      { name: 'Ares', tag: 'the raw force of war' },
+      { name: 'Heracles', tag: 'the mighty hero of strength' },
+      { name: 'Thor', tag: 'Norse thunder-god & protector' },
+      { name: 'Sekhmet', tag: 'Egyptian fierce lioness of war' },
+      { name: 'Spartacus', tag: 'the unbreakable rebel' },
     ],
   },
   9: {
@@ -227,8 +285,15 @@ export const EXEMPLARS: Record<TypeNumber, Lineage> = {
       { name: 'Luke Skywalker', tag: 'Star Wars' },
       { name: 'Marge Gunderson', tag: 'Fargo' },
       { name: 'Hagrid', tag: 'Harry Potter — the gentle giant' },
-      { name: 'Po', tag: 'Kung Fu Panda' },
       { name: 'Baloo', tag: 'The Jungle Book' },
+    ],
+    myth: [
+      { name: 'Hestia', tag: 'serene Greek goddess of the hearth' },
+      { name: 'Gaia', tag: 'the steady Earth Mother' },
+      { name: 'Baldr', tag: 'Norse god of peace & light' },
+      { name: 'The Buddha', tag: 'serene equanimity' },
+      { name: 'Laozi', tag: 'Taoist sage of effortless harmony' },
+      { name: 'Hypnos', tag: 'the gentle god of sleep' },
     ],
   },
 }

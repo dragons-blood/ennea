@@ -39,9 +39,11 @@ export default function Lineage({ type }: { type: TypeNumber }) {
       </p>
       <Group label="In the world" people={lin.real} color={t.color} />
       <Group label="On the page & screen" people={lin.fictional} color={t.color} />
+      <Group label="Myth, legend & archetype" people={lin.myth} color={t.color} />
       <p className="whisper" style={{ fontSize: '0.74rem', margin: '2px 0 0' }}>
-        Typings of real people and characters are educated guesses from the Enneagram community, not facts — type lives in
-        inner motivation, which no one can read from the outside. Take them as illustrations of the pattern, not verdicts.
+        These span real people, characters, and the figures of myth — educated guesses and archetypal resonances, not
+        facts. Type lives in inner motivation, which no one can read from the outside. Take them as illustrations of the
+        pattern, not verdicts.
       </p>
     </motion.div>
   )

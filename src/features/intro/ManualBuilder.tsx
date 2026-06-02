@@ -177,8 +177,7 @@ export default function ManualBuilder({ onGenerate }: { onGenerate: (r: Result) 
         }}
       >
         <span aria-hidden style={{ display: 'inline-block', color: 'var(--brass)', transition: 'transform .25s', transform: open ? 'rotate(90deg)' : 'none' }}>▸</span>
-        <span style={{ color: 'var(--mist)' }}>Already know your type?</span>
-        <span className="brass-text" style={{ fontWeight: 600 }}>Build a tritype by hand</span>
+        <span className="brass-text" style={{ fontWeight: 600 }}>Already know your type?</span>
       </button>
 
       <AnimatePresence initial={false}>
