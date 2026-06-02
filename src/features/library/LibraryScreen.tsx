@@ -9,6 +9,7 @@ import GrowthPath from '../result/GrowthPath'
 import Levels from '../result/Levels'
 import Callings from '../result/Callings'
 import Lineage from '../result/Lineage'
+import WingCard from '../result/WingCard'
 
 const GROWTH = '#74cf9e'
 const STRESS = '#e0796f'
@@ -139,19 +140,10 @@ export default function LibraryScreen({ initial = 1, onHome }: { initial?: TypeN
             </Block>
 
             <Block label="The wings" title="The two flavours">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
-                {t.wings.map((w) => {
-                  const nb = typeByNumber(w.neighbor)
-                  return (
-                    <div key={w.id} className="glass" style={{ ['--accent' as string]: nb.color, padding: '18px 20px', borderRadius: 16, display: 'flex', gap: 14 }}>
-                      <Badge n={w.neighbor} size={40} />
-                      <div>
-                        <div className="serif" style={{ fontSize: '1.1rem' }}>{w.id} · {w.name}</div>
-                        <p className="muted" style={{ margin: '6px 0 0', fontSize: '0.92rem', lineHeight: 1.55 }}>{w.blurb}</p>
-                      </div>
-                    </div>
-                  )
-                })}
+              <div className="stack" style={{ gap: 14 }}>
+                {t.wings.map((w) => (
+                  <WingCard key={w.id} core={sel} wing={w} />
+                ))}
               </div>
             </Block>
 

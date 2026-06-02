@@ -2,6 +2,7 @@ import type { Result } from '../data/types'
 import { typeByNumber, CENTERS } from '../data/enneatypes'
 import { DEPTH } from '../data/depth'
 import { LEVELS, type LevelBand } from '../data/levels'
+import { WING_DETAIL } from '../data/wings'
 import { CAREERS } from '../data/careers'
 import { EXEMPLARS, type Exemplar } from '../data/exemplars'
 
@@ -32,6 +33,22 @@ export function buildProfileHtml(result: Result): string {
   const g = typeByNumber(t.growthTo)
   const s = typeByNumber(t.stressTo)
   const wingTag = result.wing.id.slice(1) // 'w2'
+
+  // wing-specific depth
+  const w = result.wing
+  const wdet = WING_DETAIL[w.id]
+  const wsib = t.wings.find((x) => x.id !== w.id)
+  const wsd = wsib ? WING_DETAIL[wsib.id] : undefined
+
+  // tailored tritype-variant synthesis
+  const tw = result.tritype.wings
+  const leadT = typeByNumber(result.tritype.order[0])
+  const leadSib = leadT.wings.find((x) => x.id !== tw[0].id)
+  const leadSibDet = leadSib ? WING_DETAIL[leadSib.id] : undefined
+  const variantText =
+    leadSib && leadSibDet && WING_DETAIL[tw[0].id]
+      ? `Another ${esc(result.tritype.archetype.nickname.replace(/^The\s+/, ''))} who led with <b>${leadT.number}${leadSib.id.slice(1)}</b> would run ${esc(leadSibDet.lean)}. You lead with <b>${esc(tw[0].id)}</b> — ${esc(WING_DETAIL[tw[0].id].lean)} — then carry a <b>${esc(tw[1].id)}</b> (${esc(WING_DETAIL[tw[1].id]?.lean ?? '')}) and a <b>${esc(tw[2].id)}</b> (${esc(WING_DETAIL[tw[2].id]?.lean ?? '')}). That exact three-wing stack is the fingerprint within your fingerprint.`
+      : 'Your three members each carry their own wing, stacking into a blend no other tritype shares.'
 
   const tile = (k: string, v: string) =>
     `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`
@@ -112,13 +129,17 @@ export function buildProfileHtml(result: Result): string {
 
   ${section('Your shadow & flaws', 'Where you trip', `<div class="card plain" style="border-color:rgba(224,121,111,.35)">${flawList(d.shadow)}</div>`)}
 
+  ${section('Your type & wing', `${result.core}${wingTag} · ${w.name}`, `<div class="card"><p class="serif" style="font-size:1.12rem">${esc(wdet ? wdet.description : w.blurb)}</p>${wdet ? `<div class="two" style="margin-top:14px"><div class="card plain" style="border-color:rgba(116,207,158,.35)"><div class="label" style="color:#74cf9e">✦ The gift</div><p class="muted">${esc(wdet.gift)}</p></div><div class="card plain" style="border-color:rgba(224,121,111,.35)"><div class="label" style="color:#e0796f">☾ Growth edge</div><p class="muted">${esc(wdet.watch)}</p></div></div>` : ''}${wdet && wsib && wsd ? `<p class="muted" style="font-size:.9rem;margin-top:12px">The other wing, ${result.core}${wsib.id.slice(1)} (${esc(wsib.name)}), leans ${esc(wsd.lean)}; your ${esc(w.id)} leans ${esc(wdet.lean)}.</p>` : ''}</div>`)}
+
   ${section('Your tritype', `${result.tritype.displayWithWings} · ${result.tritype.archetype.nickname}`, `${result.tritype.order
     .map((n, i) => {
       const tt = typeByNumber(n)
       const w = result.tritype.wings[i]
-      return `<div class="tt"><span class="dot" style="background:${tt.color};box-shadow:0 0 16px -4px ${tt.color}">${n}</span><div><div class="label" style="margin:0;color:#c8a86b">${esc(tt.center)} · ${i === 0 ? 'lead' : i === 1 ? 'second' : 'third'}</div><div class="serif" style="font-size:1.1rem;color:#fff">${esc(tt.name)}</div><div style="font-size:.8rem;color:${tt.color}">${esc(w.id)} <span class="muted">· ${esc(w.name)}</span></div></div></div>`
+      return `<div class="tt"><span class="dot" style="background:${tt.color};box-shadow:0 0 16px -4px ${tt.color}">${n}</span><div><div class="label" style="margin:0;color:#c8a86b">${esc(tt.center)} · ${i === 0 ? 'lead' : i === 1 ? 'second' : 'third'}</div><div class="serif" style="font-size:1.1rem;color:#fff">${esc(tt.name)}</div><div style="font-size:.8rem;color:${tt.color}">${esc(w.id)} <span class="muted">· ${esc(w.name)}</span></div><div style="font-size:.76rem;color:#a7a3b8;margin-top:2px">${esc(WING_DETAIL[w.id]?.lean ?? '')}</div></div></div>`
     })
     .join('')}<div class="card" style="margin-top:12px"><p class="muted">${esc(result.tritype.archetype.blurb)}</p></div>`)}
+
+  ${section('Your variant', 'Your tritype, with wings', `<div class="card"><p class="serif" style="font-size:1.1rem">${variantText}</p></div>`)}
 
   ${section('The three centers', 'Where your energy lives', `<div class="card plain">${result.centerScores
     .map((cs) => bar(cs.pct, typeByNumber(cs.type).color, `${cs.center} · Type ${cs.type}`, cs.type === result.core))

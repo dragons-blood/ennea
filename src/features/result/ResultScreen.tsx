@@ -7,6 +7,8 @@ import type { Result, TypeNumber } from '../../data/types'
 import Shadow from './Shadow'
 import LoveWork from './LoveWork'
 import GrowthPath from './GrowthPath'
+import WingCard from './WingCard'
+import TritypeVariant from './TritypeVariant'
 import Levels from './Levels'
 import Callings from './Callings'
 import Lineage from './Lineage'
@@ -159,16 +161,12 @@ export default function ResultScreen({ result, onRetake, onHome, onExplore }: { 
           </Section>
 
           {/* wing */}
-          <Section label="Your wing" title={`${result.core}${wingTag} · ${result.wing.name}`}>
-            <div className="glass" style={{ padding: 'clamp(1.4rem, 4vw, 2rem)', borderRadius: 'var(--radius)', display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-              <Badge n={result.wing.neighbor} size={52} />
-              <div style={{ flex: 1, minWidth: 240 }}>
-                <p className="muted" style={{ margin: 0 }}>
-                  Your wing is the neighbouring type that most colours your core. Yours leans toward{' '}
-                  <strong style={{ color: 'var(--bone)' }}>Type {result.wing.neighbor}</strong> — {result.wing.blurb}
-                </p>
-              </div>
-            </div>
+          <Section label="Your type & wing" title={`${result.core}${wingTag} · ${result.wing.name}`}>
+            <p className="muted" style={{ marginTop: -6, marginBottom: 16 }}>
+              Your wing is the neighbouring type that most colours your core — the same core type can feel quite different
+              depending on which wing leads.
+            </p>
+            <WingCard core={result.core} wing={result.wing} contrast />
           </Section>
 
           {/* tritype */}
@@ -204,6 +202,11 @@ export default function ResultScreen({ result, onRetake, onHome, onExplore }: { 
               <div className="small-caps" style={{ color: 'var(--brass)' }}>{result.tritype.archetype.nickname}</div>
               <p className="serif" style={{ color: 'var(--mist)', margin: '8px 0 0', fontSize: '1.1rem', lineHeight: 1.7 }}>{result.tritype.archetype.blurb}</p>
             </div>
+          </Section>
+
+          {/* tritype variant — tailored to the exact wings */}
+          <Section label="Your variant" title="Your tritype, with wings">
+            <TritypeVariant result={result} />
           </Section>
 
           {/* centers */}
